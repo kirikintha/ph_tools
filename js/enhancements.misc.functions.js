@@ -6,29 +6,6 @@
 if (Drupal.jsEnabled) {
 	
 	$(document).ready( function() {
-	
-		/**
-		 * Cursor and fields interactions
-		 * This adds focus and blur css, and autocomplete
-		 */
-		
-		$("input, select, textarea").focus( function () {
-		
-			$(this).addClass( 'focused-form-field' );
-			$(this).parent().addClass( 'parent-of-focused-form-field' );
-		
-		} );
-		
-		$("input, select, textarea").blur( function () {
-		
-			$(this).removeClass( 'focused-form-field' );
-			$(this).parent().removeClass( 'parent-of-focused-form-field' );
-		
-		} );
-		
-		$('#user-login-form > #edit-name').focus();//fous user name in login form
-		
-		//TODO: focus first object in webform field
 		
 		//search fast auto-complete		
 		function log(event, data, formatted) {
@@ -43,20 +20,20 @@ if (Drupal.jsEnabled) {
 			return row[0].replace(/(<.+?>)/gi, '');
 		}
 		
-		$("input[@id^='edit-search-theme']").val( Drupal.t( 'Enter search terms here.' ) );
+		$("input[@id='edit-keys']").val( Drupal.t( 'Enter search terms here.' ) );
 		
-		$("input[@id^='edit-search-theme']").focus( function () {
+		$("input[@id='edit-keys']").focus( function () {
 			
 			$(this).val( '' );
 		
 		});
 		
 		//autocompete - beta
-		/**$("input[@id^='edit-search-theme']").autocomplete( siteSearch, {
+		$("input[@id='edit-keys']").autocomplete( siteSearch, {
 			multiple: true,
 			mustMatch: false,
 			autoFill: false
-		});*/
+		});
 	
 	} );
 	
