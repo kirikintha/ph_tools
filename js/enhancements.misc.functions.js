@@ -55,7 +55,7 @@ if (Drupal.jsEnabled) {
 		$("input[@id^='edit-search-theme']").autocomplete( siteSearch, {
 			multiple: true,
 			mustMatch: true,
-			autoFill: true
+			autoFill: false
 		});
 	
 	} );
