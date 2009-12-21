@@ -54,7 +54,7 @@ if (Drupal.jsEnabled) {
 		//autocompete - beta
 		$("input[@id^='edit-search-theme']").autocomplete( siteSearch, {
 			multiple: true,
-			mustMatch: true,
+			mustMatch: false,
 			autoFill: false
 		});
 	
