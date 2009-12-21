@@ -9,6 +9,7 @@ if (Drupal.jsEnabled) {
 	
 		/**
 		 * Cursor and fields interactions
+		 * This adds focus and blur css, and autocomplete
 		 */
 		
 		$("input, select, textarea").focus( function () {
