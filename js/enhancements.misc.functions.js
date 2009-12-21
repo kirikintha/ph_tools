@@ -47,17 +47,13 @@ if (Drupal.jsEnabled) {
 		
 		$("input[@id^='edit-search-theme']").focus( function () {
 			
-			if ( $(this).val() == 'Enter search terms here.' ) {
-				
 				$(this).val( '' );
-				
-			}
 		
 		});
 
 		$("input[@id^='edit-search-theme']").blur( function () {
 			
-			$("input[@id^='edit-search-theme']").val( Drupal.t( 'Enter search terms here.' ) );
+			$(this).val( Drupal.t( 'Enter search terms here.' ) );
 		
 		});
 		
