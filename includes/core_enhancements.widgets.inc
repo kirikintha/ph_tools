@@ -38,7 +38,7 @@ function _get_weather_widget( $url ) {
 
 function theme_weather_widget ( $widget ) {
 				
-  print_r( $widget ) ;
+  //print_r( $widget ) ;
 	
 	$item = '';
 	
