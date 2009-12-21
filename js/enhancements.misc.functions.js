@@ -47,16 +47,9 @@ if (Drupal.jsEnabled) {
 		
 		$("input[@id^='edit-search-theme']").focus( function () {
 			
-				$(this).val( '' );
+			$(this).val( '' );
 		
 		});
-
-		$("input[@id^='edit-search-theme']").blur( function () {
-			
-			$(this).val( Drupal.t( 'Enter search terms here.' ) );
-		
-		});
-		
 		
 		//autocompete - beta
 		$("input[@id^='edit-search-theme']").autocomplete( siteSearch, {

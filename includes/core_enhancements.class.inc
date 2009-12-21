@@ -500,7 +500,7 @@ class ceAutocomplete extends coreEnhancements {
 			case 'all':
 			default:
 			
-				$sql 			= "SELECT * FROM {search_dataset}";
+				$sql 			= "SELECT * FROM {search_index} WHERE `type` = 'node' GROUP BY `word` ASC LIMIT 0 , 5000"; //I just feel like limiting this right now
 				$fileName = 'search_all.js';
 			
 			break;
