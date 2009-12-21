@@ -1,0 +1,699 @@
+<?php
+/**
+* Custom Enhancements Module
+*/
+
+//start the coreenhancements class
+require_once(drupal_get_path('module', 'core_enhancements'). '/includes/core_enhancements.class.inc');
+$enhancements = new coreEnhancements(); //this is now a global object to be used
+
+//get functions and widgets
+require_once(drupal_get_path('module', 'core_enhancements'). '/includes/core_enhancements.functions.inc');
+require_once(drupal_get_path('module', 'core_enhancements'). '/includes/core_enhancements.widgets.inc');
+
+//ajax inline edit functions
+require_once(drupal_get_path('module', 'core_enhancements'). '/includes/core_enhancements.inlineEdit.inc');
+
+/**
+ * Hook theme
+ * theme( 'weather_widget', $widget );
+ */
+
+function core_enhancements_theme() {
+	
+	return array (
+		
+		'weather_widget' => array (
+			'arguments' => array(),
+		)
+
+	);
+	
+}
+
+/**
+ * Load Jquery, Jquery UI and Preload images
+ * TODO: Make enabling and disabling js easier through admin backend
+ */
+function core_enhancements_load_js() {
+	
+	//Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.setting
+	drupal_add_js(array('drupal_get_destination' => drupal_get_destination()), 'setting');
+	
+	//autocomplete && search
+	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
+	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.ajaxQueue.js','module', 'header' );
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/autocomplete/jquery.autocomplete.js','module','header');
+	drupal_add_css( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/jquery.autocomplete.css','module' );
+	
+	//add fast autocomplete searches first
+	drupal_add_js( file_directory_path() .'/fast_autocomplete/search_all.js','module', 'header' );
+	
+	if ( variable_get( 'core_enhancements_enable_inline_editing', '' ) == 1 ) { //if inline editing is enabled
+		
+		//make admin node edit items open an ajax form
+		drupal_add_js(array('ajax_node_add' => 'ajax/node/add'), 'setting');
+		drupal_add_js(array('ajax_node_edit' => 'ajax/node/edit'), 'setting');
+		drupal_add_js(array('ajax_node_delete' => 'ajax/node/delete'), 'setting');
+		drupal_add_js(array('ajax_node_preview' => 'ajax/node/preview'), 'setting');
+		drupal_add_js(array('ajax_node_add_another' => 'ajax/node/add-another'), 'setting');
+		drupal_add_js(array('ajax_form_action' => $_SERVER['REQUEST_URI']), 'setting');
+	
+		//Inline Edit js
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/js/enhancements.inlineEdit.js','module','footer');
+	
+	}
+	
+	//Drupal Functions
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/js/enhancements.drupal.functions.js','module','header');
+
+	//cookie
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/cookies/jquery.cookies.js','module','header');
+	
+	if ( variable_get( 'core_enhancements_enable_jquery_cycle', '' ) == 1 ) { //enable cycle?
+	
+		//cycle
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/cycle/jquery.cycle.js','module','header');
+	
+	}
+	
+	if ( variable_get( 'core_enhancements_enable_jquery_carousel', '' ) == 1 ) { //enable carousel?
+	
+		//jcarousel js && css
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/carousel/lib/jquery.jcarousel.js','module','header');
+		drupal_add_css(drupal_get_path('module', 'core_enhancements'). '/jquery/carousel/lib/jquery.jcarousel.css', 'module', 'all', false);
+		drupal_add_css(drupal_get_path('module', 'core_enhancements'). '/jquery/carousel/skins/tango/skin.css', 'module', 'all', false);
+	
+	}
+	
+	if ( variable_get( 'core_enhancements_enable_jquery_maskedinput', '' ) == 1 ) { //enable masked input?
+	
+		//masked input
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/maskedinput/jquery.maskedinput.js','module','footer');
+		
+	}
+	
+	if ( variable_get( 'core_enhancements_enable_jquery_orbitaltooltip', '' ) == 1 ) { //enable tooltip?
+	
+		//tooltip
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/orbitaltooltip/jquery.orbitaltooltip.js','module','footer');
+	
+	}
+	
+	//preload css images
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/preloadimages/jquery.preloadimages.js','module','header');
+	$jsCSS = '$(document).ready(function(){$.preloadCssImages();});';
+	drupal_add_js($jsCSS,'inline','header');
+	
+	//pngFix
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/pngFix/jquery.pngFix.js','module','header');
+	$jsPNG = '$(document).ready(function(){$(document).pngFix();});';
+	drupal_add_js($jsPNG,'inline','header');
+	
+	//Miscellaneous Functions, should stay at the end
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/js/enhancements.misc.functions.js','module','footer');
+	
+	//check if messages can fade
+	core_enhancements_message_can_fade();
+	
+}
+
+/**
+ * Find out if the path given is valid for fading out messages
+ */
+function core_enhancements_message_can_fade() {
+	
+	$path 	= drupal_get_path_alias($_GET['q']);
+	$regexp = '/^('. preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1'. preg_quote(variable_get('site_frontpage', 'node'), '/') .'\2'), preg_quote(variable_get('core_enhancements_fade_out_paths', ""), '/')) .')$/';
+
+	$found 	= preg_match($regexp, $path);
+
+	if ($found != 1 && variable_get('fade_messages_override', '') == 1 ) {
+		
+		$classes 		= explode("\n",variable_get('core_enhancements_classes_to_fade', "" ));
+
+		$jsFadeOut 		= '$(document).ready(function(){ setTimeout(function(){ ';
+		
+		//you have to list these individually, or IE throws fits
+		foreach ($classes as $class) {
+			
+			$class = str_replace("\r", "", $class);
+			$class = str_replace("\n", "", $class);
+
+			$jsFadeOut 	.= '$(".' .$class .'").fadeOut();';
+		}
+		
+		$jsFadeOut 		.= '} ,' .variable_get('core_enhancements_fade_out_delay',5500) .'); });';
+		
+		drupal_add_js($jsFadeOut,'inline','header');
+		
+	}
+		
+}
+
+/**
+ * Load enhancements sitewide
+ * TODO: Make default settings for global to include or exclude
+ */
+core_enhancements_load_js();
+
+/**
+ * Implementation of hook_user()
+ */
+function core_enhancements_user($op, &$edit, &$account, $category = NULL) {
+	switch ($op) {
+		case 'load':
+		case 'update':
+			//if image cache module, reacache the user image when the user loads their profile
+			if (function_exists('imagecache_image_flush')) {
+				imagecache_image_flush($account->picture);
+			}
+		break;
+	}
+}
+
+/**
+ * Implementation of preprocess_page()
+ */
+function core_enhancements_preprocess_page(&$vars) {
+	
+	//remove personal files tab, if the imce module exists, and if there is not a permission level for uploading files
+	if ( module_exists('imce') || module_exists('fckeditor') ) {
+		if (!user_access('allow fckeditor file uploads') || !user_access('upload files') ) {
+			$vars['tabs'] = preg_replace('/<li.*File browser<\/a><\/li>/', '', $vars['tabs']);
+		}
+	}
+	
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function core_enhancements_nodeapi(&$node, $op, $teaser, $page) {
+  switch ($op) {
+	case 'load':
+	break;
+	
+	case 'prepare':
+	break;
+	
+	case 'view':
+		//Fix Teasers here
+		if (variable_get('fix_teasers', '') == 1) {
+			$node->teaser = '<p>' .strip_tags($node->teaser) .'...</p>';
+			$teaser = '<p>' .strip_tags($teaser) .'...</p>';
+		}
+		//fck edititor
+		if ( arg(0) != 'node' || arg(1) != 'add' || arg(2) != 'edit' || $is_front ) {
+			if( !function_exists("node_object_prepare")) {
+			   include_once(drupal_get_path('module', 'node') . '/node.pages.inc');
+			}
+			drupal_get_form($node->type.'_node_form', $node);
+		}
+
+	break;
+	
+	case 'validate':
+	break;
+	
+	case 'submit':
+	break;
+	
+	case 'update':
+	break;
+  }
+}
+
+/**
+ * Implementation of hook_link_alter().
+ */
+function core_enhancements_link_alter(&$node, &$links) {
+	
+	foreach ($links as $module => $link) {
+		//print $module .' - ' .$link .'<br />';
+		
+		//This alters the Comment link to the text that you enter in core enhancements page
+		if ($module == 'comment_add' && variable_get('rename_comment_link', '') == 1) {
+		//find out if the image should be put in
+			if (variable_get('comment_show_icon', '') == 1) {
+				$img = base_path() .variable_get('comment_icon_locale', '');
+				$img = '<img width="16px" height="16px" style="vertical-align:middle" src="'. $img .'" alt="Add a new comment to this page." />'.' ';
+			}
+			$links[$module]['html'] = TRUE;
+			$links[$module]['title'] = variable_get('rename_comment_link_title', '') ? $img .variable_get('rename_comment_link_title', '') : 'Add new comment';
+		}
+		
+		//This alters the Subscribe link to add an image to the link
+		if ($module == 'subscriptions-subscribe' && variable_get('subscribe_link', '') == 1) {
+		//find out if the image should be put in
+			if (variable_get('subscribe_show_icon', '') == 1) {
+				$img = base_path() .variable_get('subscribe_icon_locale', '');
+				$img = '<img width="16px" height="16px" style="vertical-align:middle" src="'. $img .'" alt="Receive notifications about changes and/or comments to this page (and possibly similar pages)." />'.' ';
+			}
+			$links[$module]['html'] = TRUE;
+			$links[$module]['title'] = $img ? $img .$links[$module]['title'] : $links[$module]['title'];
+		}
+		
+		//This unsets the page count from the links entirely, this is a global setting, not permissions based.
+		if ($module == 'statistics_counter' && variable_get('node_count_override', '') == 1) {
+			unset($links[$module]);
+		}
+		
+	}
+}
+
+/**
+ * Implementation of hook__form_alter().
+ */
+function core_enhancements_form_alter($form_id, &$form) {
+	//TODO; This has to become a setting
+	if ($form_id['#id'] == 'node-form') {
+		
+		$form_id['buttons']['cancel'] =  Array
+		(
+			'#type' 	=> 'submit',
+			'#value' 	=> 'Cancel',
+			'#weight' 	=> 16,
+			'#submit' 	=> Array
+			(
+				0 => ce_node_form_cancel_submit
+			)
+		);
+		
+		//TODO: This needs to save the current for and add another
+		$form_id['buttons']['add_another'] =  Array
+		(
+			'#type' 	=> 'submit',
+			'#value' 	=> 'Save & Add Another',
+			'#weight' 	=> 17,
+			'#submit' 	=> Array
+			(
+				0 => ce_node_form_add_another_submit
+			)
+		);
+	}
+
+}
+
+/*
+* Module Functions
+*/
+
+//Main Page, default Tab
+function core_enhancements_main() {
+	
+	//Header
+	$output = '<p>The Core Enhanacements Module 2.0 adds many kinds of functionality and customizeable settings to the Core of Drupal. This allows the core modules of Drupal to remain intact, so that it is easier to upgrade the site to a newer version. To customize, enable or disable any of the enhancements, click on <em>Customize Core Enhancements</em></p>';
+	$output .= '<p>Also, this module contains the following PHP functions, Javascript Functions, and Jquery additions.</p>';
+	
+	//PHP functions
+	$items = array(
+		'ctype_alpha - if the ctype_alpha function does not exist in your php install, this corrects the problem.',
+		'ctype_digit - if the ctype_digit function does not exist in your php install, this corrects the problem.',
+	);
+	$output .= theme('item_list',$items,'PHP Functions','ul');
+	
+	//Class Functions
+	$items = array(
+		'coreEnhancements::_strip_views_keys( $str ) - this removes many of the common keys that make for long views lines. Use this to trim your views into manageable pieces.',
+		'coreEnhancements::_browser_check() - this function returns the current browser, and is available to all modules. returns an array $browser[\'version\'] && $browser[\'type\']',
+		'coreEnhancements::_list_months() - this function lists all Julian Calendar Months in a nn format, for use in your select boxes!',
+		'coreEnhancements::_list_years( $startDate, $endDate ) - this function returns the years you specify. ex: return $options = listYears( date( "Y", strtotime("- 3 years") ), date( "Y", strtotime("+3 years") ) );',
+		'coreEnhancements::_list_countries_iso() - this returns all countries as of 2009. Returns an array, please see the module for the array returned',
+		'coreEnhancements::_list_us_states() - returns current US states as of 2009.',
+		'coreEnhancements::_list_canadian_provinces() - returns current Canadian Provinces as of 2009.',
+    'coreEnhancements::_get_season( $to ) - returns an array (\'name\',\'date\') and allows you to get the current season ex: coreEnhancements::_get_season() or a season in the future coreEnhancements::_get_season( 180 )'
+	);
+	$output .= theme('item_list',$items,'coreEnhancements class static functions','ul');
+	
+	//Drupal.js
+	$items = array(
+		'Browser Detect - accessible on any js enabled page, can access the * BrowserDetect.browser * BrowserDetect.version * BrowserDetect.OS objects, very handy in detecting browsers! From: http://www.quirksmode.org/js/detect.html',
+		'Drupal.trace( string ) - sends a string to the browsers console window, like firebug. Since console.log will fail your application in IE, this allows you to safely output to your browsers console.',
+		'Drupal.l(  title, ref, attr, destination, id  ) - Emulates the l() function in Drupal along with an id tag and destination. Attributes are rel, classes, alt',
+		'Drupal.serialize( data, prefix ) - outputs serialized data into a uriendcoded serialized array, useful for posting data back to drupal',
+		'Drupal.urlDecode( encodedString ) - emulates PHP\'s urldecode function',
+		'Drupal.saveCookie( name, data, discontinues, domain ) - allows you to save a cookie properly in your browser',
+		'Drupal.deleteCookie( name ) - deletes a cookie properly fomr the system',
+		'Drupal.scollTo( target ) - scrolls the browser window to a specific point, much like using anchor tags',
+		'Drupal.validateForm( formTarget, pageTarget, showSubmit ) - check a specific div that contains a form to check the fields for unfilled required fields. Also, this will find any email addresses and validate those as well.',
+		'Drupal.theme( \'progress\', target, j, total, startMessage, endMessage ) - allows you to create multiple progress bars on one page, emulates theme(\'progress\')',
+		'Drupal.settings.drupal_get_destination - returns the current destination from the function drupal_get_destination()'
+	);
+	$output .= theme('item_list',$items,'Drupal.js javascript accessible functions','ul');
+	
+	//Jquery Plugins
+	$items = array(
+		'Jquery Cookies - lets you easily manage cookies. http://www.electrictoolbox.com/jquery-cookies/ ',
+		'Jquery Cycle - allows you to cycle through just about anything. http://malsup.com/jquery/cycle/',
+		'J Carousel - makes for easy image galleries. http://sorgalla.com/jcarousel/',
+		'Masked Input - allows you to mask the input of your forms. http://digitalbush.com/projects/masked-input-plugin/',
+		'Orbital Tooltip - one of many tooltips, a little buggy but good. http://www.userfirstinteractive.com/2008/12/01/orbital-tooltip/',
+		'Preload CSS Images, preload your CSS url() images. http://www.filamentgroup.com/lab/update_automatically_preload_images_from_css_with_jquery/',
+  	'PNG Fix, fix PNG transparency in IE 5 && 6. http://jquery.andreaseberhard.de/pngFix/'
+	);
+	$output .= theme('item_list',$items,'Jquery Plugins','ul');
+	
+	//Output everything to the markup field
+	$form['core_enhancements']['main'] = array(
+	'#type' => 'markup',
+	'#value' => $output,
+	'#weight' => 0,
+	);
+	
+	return $form;
+
+}
+
+//Customizeable Elements
+function core_enhancements_customize() {
+	
+	$output = '<p><strong>Customize Core Enhancements</strong>: Each Enhancement is placed inside it\'s own collapsable fieldset, referenced by it\'s name on the main page.</p>';
+	$form['core_enhancements']['customize'] = array(
+	'#type' 	=> 'markup',
+	'#value' 	=> $output,
+	'#weight' => 0,
+	);
+	
+	//Fix Teasers
+	$form['core_enhancements']['fix_teasers'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Fix Teasers'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 20
+	);
+	$output = '<p>There are some problems with teasers not teasing the html markup cleanly. This adds the php function strip_tags() to all teasers, so they successfully display without breaking the layout of the page or adding invalid markup</p>';
+	$form['core_enhancements']['fix_teasers']['info'] = array(
+	'#type' 	=> 'markup',
+	'#value' 	=> $output,
+	'#weight' => 0,
+	);
+	$options = array('DIASBLE FIX','ENABLE FIX');
+	$form['core_enhancements']['fix_teasers']['fix_teasers'] = array(
+	  '#title' 					=> 'Fix Teasers',
+	  '#description' 		=> 'Enable or Disable strip_tags on all teasers',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('fix_teasers', '') ? variable_get('fix_teasers', '') : 0,
+	  '#options' 				=> $options,
+	);
+	
+	//Rename Comment Link and Add Image
+	$form['core_enhancements']['rename_comment_link'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Comment Link Override'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 19
+	);
+	$output = '<p>This setting allows you to alter the comments link to any text you wish to apply. The recommended change would be to use \'Reply\' instead of the default. Also, there is an option to add a comment image to your comments, to keep it similar to the new printer friendly version (which allows you to add in an icon).</p>';
+	$form['core_enhancements']['rename_comment_link']['info'] = array(
+	'#type' 	=> 'markup',
+	'#value' 	=> $output,
+	'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['rename_comment_link']['rename_comment_link'] = array(
+	  '#title' 					=> 'Enable or Disable Comment Link override',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('rename_comment_link', '') ? variable_get('rename_comment_link', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['rename_comment_link']['rename_comment_link_title'] = array(
+	  '#title' 					=> 'New Link Title',
+	  '#description' 		=> 'Enter your text to rename the comment link to.',
+	  '#type' 					=> 'textfield', 
+	  '#default_value' 	=> variable_get('rename_comment_link_title', '') ? variable_get('rename_comment_link_title', '') : '',
+	);
+	$options = array('Hide Icon','Show Icon');
+	$form['core_enhancements']['rename_comment_link']['comment_show_icon'] = array(
+	  '#title' 					=> 'Show comment icon?',
+	  '#description' 		=> 'Add an icon to the left side of the comment link.',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('comment_show_icon', '') ? variable_get('comment_show_icon', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['rename_comment_link']['comment_icon_locale'] = array(
+	  '#title' 					=> 'Image location and name',
+	  '#description' 		=> 'Enter the location of the image file you are using',
+	  '#type' 					=> 'textfield', 
+	  '#default_value' 	=> variable_get('comment_icon_locale', '') ? variable_get('comment_icon_locale', '') : '',
+	);
+	
+	//Add image to Subscribe Link
+	$form['core_enhancements']['subscribe_link'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Subscribe Link Override'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 18
+	);
+	$output = '<p>This setting allows you to alter the subscribe link aby adding an icon to the subscribe link. The Print module allows you to add an icon, and this setting allows you to do the same.</p>';
+	$form['core_enhancements']['subscribe_link']['info'] = array(
+	'#type' 	=> 'markup',
+	'#value' 	=> $output,
+	'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['subscribe_link']['subscribe_link'] = array(
+	  '#title' 					=> 'Enable or Disable Subscribe Link override',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('subscribe_link', '') ? variable_get('subscribe_link', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$options = array('Hide Icon','Show Icon');
+	$form['core_enhancements']['subscribe_link']['subscribe_show_icon'] = array(
+	  '#title' 					=> 'Show subscribe icon?',
+	  '#description' 		=> 'Add an icon to the left side of the subscribe link.',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('subscribe_show_icon', '') ? variable_get('subscribe_show_icon', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['subscribe_link']['subscribe_icon_locale'] = array(
+	  '#title' 					=> 'Image location and name',
+	  '#description' 		=> 'Enter the location of the image file you are using',
+	  '#type' 					=> 'textfield', 
+	  '#default_value' 	=> variable_get('subscribe_icon_locale', '') ? variable_get('subscribe_icon_locale', '') : '',
+	);
+	
+	//Disable The Page Count Entirely
+	$form['core_enhancements']['node_count_override'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Node Count Override'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 17
+	);
+	$output = '<p>One of my biggest pet peeves about drupal is that the page count from the statistics module for a node shows up every where, and usually it is unwanted. You can set this setting to not display in Access Control (and there are a few hacks), but user 1 always see this, so does the admin, and the hacks are no good (why would I want to empty a whole table of valuable statistics data), and sometimes it\'s just better to disable the darn thing entirely. This solves a hack I put into the node.module.</p>';
+	$form['core_enhancements']['node_count_override']['info'] = array(
+	'#type' 	=> 'markup',
+	'#value' 	=> $output,
+	'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['node_count_override']['node_count_override'] = array(
+	  '#title' 					=> 'Enable or disable page counts for the links for each node',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('node_count_override', '') ? variable_get('node_count_override', '') : 0,
+	  '#options' 				=> $options,
+	);
+	
+	//Jquery include options
+	$form['core_enhancements']['jquery_plugins'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Jquery Plug-ins'),
+		'#collapsible' 	=> FALSE,
+		'#collapsed' 		=> FALSE,
+		'#weight'				=> -20
+	);
+	$output = '<p>Jquery plugins are plugins that can be enabled globally. All plug-ins are enabled by default</p>';
+	$form['core_enhancements']['jquery_plugins']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['jquery_plugins']['core_enhancements_enable_jquery_carousel'] = array(
+	  '#title' 					=> 'Enable or disable Jquery Carousel',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('core_enhancements_enable_jquery_carousel', '') ? variable_get('core_enhancements_enable_jquery_carousel', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['jquery_plugins']['core_enhancements_enable_jquery_cycle'] = array(
+	  '#title' 					=> 'Enable or disable Jquery Cycle',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('core_enhancements_enable_jquery_cycle', '') ? variable_get('core_enhancements_enable_jquery_cycle', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['jquery_plugins']['core_enhancements_enable_jquery_maskedinput'] = array(
+	  '#title' 					=> 'Enable or disable Jquery Masked Input',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('core_enhancements_enable_jquery_maskedinput', '') ? variable_get('core_enhancements_enable_jquery_maskedinput', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['jquery_plugins']['core_enhancements_enable_jquery_orbitaltooltip'] = array(
+	  '#title' 					=> 'Enable or disable Jquery Orbital Tooltip',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('core_enhancements_enable_jquery_orbitaltooltip', '') ? variable_get('core_enhancements_enable_jquery_orbitaltooltip', '') : 0,
+	  '#options' 				=> $options,
+	);
+	
+	//Strip Keys
+	$form['core_enhancements']['views_strip_keys'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Views Strip Keys'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 17
+	);
+	$output = '<p>Strip out Views Keyes allows you to trim down views keys to a reasonable key.</p>';
+	$form['core_enhancements']['views_strip_keys']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+	);
+	$form['core_enhancements']['views_strip_keys']['core_enhancements_views_strip_keys_keys'] = array(
+	  '#title' 					=> 'Keywords to strip',
+	  '#description' 		=> 'Enter in keywords to srtip, this will strip out everything! Spearate by a semi-colon',
+	  '#type' 					=> 'textarea', 
+	  '#default_value' 	=> variable_get('core_enhancements_views_strip_keys_keys', "" ),
+	);
+
+	//Fade messages
+	$form['core_enhancements']['fade_messages'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Fade Out Messages'),
+		'#collapsible' 	=> FALSE,
+		'#collapsed' 		=> FALSE,
+		'#weight'				=> -19
+	);
+	$output = '<p>Drupal status, warning and error messages stick to the page. This allows you to set which messages fade, and on which urls</p>';
+	$form['core_enhancements']['fade_messages']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['fade_messages']['fade_messages_override'] = array(
+	  '#title' 					=> 'Enable or disable message fading',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('fade_messages_override', '') ? variable_get('fade_messages_override', '') : 0,
+	  '#options' 				=> $options,
+	);
+	$form['core_enhancements']['fade_messages']['core_enhancements_classes_to_fade'] = array(
+	  '#title' 					=> 'Classes to fade',
+	  '#description' 		=> 'Enter the class names of the classes of the messages you wish to fade.',
+	  '#type' 					=> 'textarea', 
+	  '#default_value' 	=> variable_get('core_enhancements_classes_to_fade', "status\nwarning" ),
+	);
+	$form['core_enhancements']['fade_messages']['core_enhancements_fade_out_paths'] = array(
+	  '#title' 					=> 'Paths to exclude from fading',
+	  '#description' 		=> 'Enter the paths you do NOT want to fade, like the admin section.',
+	  '#type' 					=> 'textarea', 
+	  '#default_value' 	=> variable_get('core_enhancements_fade_out_paths', "admin*\n"),
+	);
+	$form['core_enhancements']['fade_messages']['core_enhancements_fade_out_delay'] = array(
+	  '#title' 					=> 'Timeout before fade happens',
+	  '#description' 		=> 'Enter the timeout value, in miliseconds before the timeout fires the fade out',
+	  '#type' 					=> 'textfield', 
+	  '#default_value' 	=> variable_get('core_enhancements_fade_out_delay',5500),
+	);
+
+	//Take you to XStandard if it's enabled
+	if (module_exists('xstandard')) {
+		
+		$form['core_enhancements']['xstandard'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Xstandard WYSIWYG Editor'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> FALSE,
+		);
+		
+		$output = '<p>'.theme('image','misc/watchdog-ok.png').' <strong>Xstandard is installed</strong></p>';
+		$output .= '<p>XStandard is the leading standards-compliant plug-in WYSIWYG editor for desktop applications and browser-based content management systems (IE/Firefox/Safari/Opera). The editor generates clean XHTML Strict or 1.1, and uses CSS for formatting, to ensure the clean separation of content from presentation. The editor is keyboard accessible, and markup generated by XStandard meets the most demanding accessibility requirements. The editor\'s cool features include drag & drop file upload, spell checking and an image library that integrates tightly with your CMS.</p>';
+		$form['core_enhancements']['xstandard']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+		);
+		
+	}
+	
+  return system_settings_form($form);
+
+}
+
+/**
+ * Hook Cron
+ */
+
+function core_enhancements_cron() {
+	
+	//TODO - anything in menu router atucomplete, and jquery override
+	
+	//Update the textfile for sitewide search results - default
+	ceAutocomplete::updateFastAutocomplete();
+	
+}
+
+/*
+* Hook Menu
+*/
+function core_enhancements_menu() {
+	
+	$items = array();
+	
+	$items['admin/settings/core_enhancements'] = array(
+		'title'             => "Core Enhancements",
+		'page callback'     => 'drupal_get_form',
+		'page arguments'    => array('core_enhancements_main'),
+		'type'              => MENU_NORMAL_ITEM,
+		'access arguments'  => array('administer site configuration')
+	);
+	
+	$items['admin/settings/core_enhancements/main'] = array(
+		'path' 				=> 'admin/settings/core_enhancements/main',
+		'title' 			=> t('Main'),
+		'type' 				=> MENU_DEFAULT_LOCAL_TASK,
+		'weight' 			=> -10,
+		'access arguments'  => array('administer site configuration')
+	);
+	
+	$items['admin/settings/core_enhancements/customize'] = array(
+		'title' 			=> t('Customize Core Enhancements'),
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('core_enhancements_customize'),
+		'type'				=> MENU_LOCAL_TASK,
+		'access arguments'  => array('administer site configuration')
+	);
+	
+	//AJAX menu callbacks
+	$items['ajax/node/submit'] = array(
+    'page callback'     => 'ce_ajax_node_submit',
+    'type'              => MENU_CALLBACK,
+		'access callback' => '_node_add_access',
+    );
+	
+	$items['ajax/node/add'] = array(
+    'page callback'     => 'ce_ajax_node_add',
+    'type'              => MENU_CALLBACK,
+		'access callback' => '_node_add_access',
+    );
+
+	$items['ajax/node/edit'] = array(
+    'page callback'     => 'ce_ajax_node_edit',
+    'type'              => MENU_CALLBACK,
+		'access callback' => '_node_add_access',
+    );
+	
+	return $items;
+
+}

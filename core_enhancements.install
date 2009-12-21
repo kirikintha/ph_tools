@@ -1,0 +1,29 @@
+<?php
+/**
+ * Hook install
+ */
+
+function core_enhancements_install() {
+  
+  //set variables
+  variable_set( 'core_enhancements_views_strip_keys_keys', '_company_logo_company_;registration_company_ref_;node_;data_;_value;field_;__');
+  variable_set( 'core_enhancements_enable_jquery_carousel' , 1 );
+  variable_set( 'core_enhancements_enable_jquery_cycle' , 1 );
+  variable_set( 'core_enhancements_enable_jquery_maskedinput' , 1 );
+  variable_set( 'core_enhancements_enable_jquery_orbitaltooltip' , 1 );
+  
+}
+
+/**
+ * Hook uninstall
+ */
+function core_enhancements_uninstall() {
+  
+  //set variables
+  variable_del( 'core_enhancements_views_strip_keys_keys');
+  variable_del( 'core_enhancements_enable_jquery_carousel');
+  variable_del( 'core_enhancements_enable_jquery_cycle');
+  variable_del( 'core_enhancements_enable_jquery_maskedinput');
+  variable_del( 'core_enhancements_enable_jquery_orbitaltooltip');
+  
+}
