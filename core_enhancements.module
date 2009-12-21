@@ -389,7 +389,7 @@ function core_enhancements_customize() {
 	'#value' 	=> $output,
 	'#weight' => 0,
 	);
-	$options = array('DIASBLE FIX','ENABLE FIX');
+	$options = array('DISABLE FIX','ENABLE FIX');
 	$form['core_enhancements']['fix_teasers']['fix_teasers'] = array(
 	  '#title' 					=> 'Fix Teasers',
 	  '#description' 		=> 'Enable or Disable strip_tags on all teasers',
