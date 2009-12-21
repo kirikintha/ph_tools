@@ -47,7 +47,11 @@ if (Drupal.jsEnabled) {
 		
 		$("input[@id^='edit-search-theme']").focus( function () {
 			
-			$(this).val( '' );
+			if ( $(this).val() == 'Enter search terms here.' ) {
+				
+				$(this).val( '' );
+				
+			}
 		
 		});
 
