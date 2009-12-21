@@ -514,7 +514,7 @@ class ceAutocomplete extends coreEnhancements {
 		
 		while ( $data = db_fetch_object( $rs ) ) {
 			
-			$output .= "\t\"" . t( trim( $data->data ) ) ."\",\r\n";
+			$output .= "\t\"" . t( trim( $data->word) ) ."\",\r\n";
 			
 		}
 
