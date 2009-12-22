@@ -39,6 +39,8 @@ function core_enhancements_load_js() {
 	
 	global $theme_key, $theme_info;
 	
+	print_r($theme_info);
+	
 	//Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.setting
 	drupal_add_js( array( 'drupal_get_destination' => drupal_get_destination() ), 'setting' );
 	//Add Path To Theme setting, so you can get the path to theme
