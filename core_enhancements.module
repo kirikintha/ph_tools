@@ -37,9 +37,7 @@ function core_enhancements_theme() {
  */
 function core_enhancements_load_js() {
 	
-	global $theme_key, $theme_info;
-	
-	print_r($theme_info);
+	print_r($GLOBALS);
 	
 	//Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.setting
 	drupal_add_js( array( 'drupal_get_destination' => drupal_get_destination() ), 'setting' );
