@@ -42,7 +42,7 @@ function core_enhancements_load_js() {
 	//Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.setting
 	drupal_add_js( array( 'drupal_get_destination' => drupal_get_destination() ), 'setting' );
 	//Add Path To Theme setting, so you can get the path to theme
-	drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', $theme_key ) ), 'setting' );
+	drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', (string) $theme_key ) ), 'setting' );
 	
 	//autocomplete && search
 	//-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
