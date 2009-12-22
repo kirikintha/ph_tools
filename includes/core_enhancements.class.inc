@@ -489,10 +489,10 @@ class coreEnhancements {
  * Faster Autocomplete functionality
  */
 class ceAutocomplete extends coreEnhancements {
-		
+	
 	public static function updateFastAutocomplete( $type = 'all' ) {
 		
-		$items = array();
+		$items 		= array();
 		$fileName = '';
 		
 		switch ( $type ) {
