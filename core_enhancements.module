@@ -41,10 +41,10 @@ function core_enhancements_load_js() {
 	drupal_add_js(array('drupal_get_destination' => drupal_get_destination()), 'setting');
 	
 	//autocomplete && search
-	//-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
-	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.ajaxQueue.js','module', 'footer' );
-	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/autocomplete/jquery.autocomplete.js','module','footer');
-	drupal_add_css( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/jquery.autocomplete.css','module' );
+	//-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
+	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.ajaxQueue.js','module', 'footer' );
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/autocomplete/jquery.autocomplete.js','module','footer');
+	drupal_add_css( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/jquery.autocomplete.css','module' );
 	
 	//add fast autocomplete searches first
 	drupal_add_js( file_directory_path() .'/fast_autocomplete/search_all.js','module', 'footer' );
@@ -68,45 +68,45 @@ function core_enhancements_load_js() {
 	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/js/enhancements.drupal.functions.js','module','header');
 
 	//cookie
-	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/cookies/jquery.cookies.js','module','header');
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/cookies/jquery.cookies.js','module','header');
 	
 	if ( variable_get( 'core_enhancements_enable_jquery_cycle', '' ) == 1 ) { //enable cycle?
 	
 		//cycle
-		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/cycle/jquery.cycle.js','module','header');
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/cycle/jquery.cycle.js','module','header');
 	
 	}
 	
 	if ( variable_get( 'core_enhancements_enable_jquery_carousel', '' ) == 1 ) { //enable carousel?
 	
 		//jcarousel js && css
-		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/carousel/lib/jquery.jcarousel.js','module','header');
-		drupal_add_css(drupal_get_path('module', 'core_enhancements'). '/jquery/carousel/lib/jquery.jcarousel.css', 'module', 'all', false);
-		drupal_add_css(drupal_get_path('module', 'core_enhancements'). '/jquery/carousel/skins/tango/skin.css', 'module', 'all', false);
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/carousel/lib/jquery.jcarousel.js','module','header');
+		drupal_add_css(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/carousel/lib/jquery.jcarousel.css', 'module', 'all', false);
+		drupal_add_css(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/carousel/skins/tango/skin.css', 'module', 'all', false);
 	
 	}
 	
 	if ( variable_get( 'core_enhancements_enable_jquery_maskedinput', '' ) == 1 ) { //enable masked input?
 	
 		//masked input
-		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/maskedinput/jquery.maskedinput.js','module','footer');
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/maskedinput/jquery.maskedinput.js','module','footer');
 		
 	}
 	
 	if ( variable_get( 'core_enhancements_enable_jquery_orbitaltooltip', '' ) == 1 ) { //enable tooltip?
 	
 		//tooltip
-		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/orbitaltooltip/jquery.orbitaltooltip.js','module','footer');
+		drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/orbitaltooltip/jquery.orbitaltooltip.js','module','footer');
 	
 	}
 	
 	//preload css images
-	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/preloadimages/jquery.preloadimages.js','module','header');
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/preloadimages/jquery.preloadimages.js','module','header');
 	$jsCSS = '$(document).ready(function(){$.preloadCssImages();});';
 	drupal_add_js($jsCSS,'inline','header');
 	
 	//pngFix
-	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/pngFix/jquery.pngFix.js','module','header');
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/pngFix/jquery.pngFix.js','module','header');
 	$jsPNG = '$(document).ready(function(){$(document).pngFix();});';
 	drupal_add_js($jsPNG,'inline','header');
 	
@@ -345,7 +345,7 @@ function core_enhancements_main() {
 	//Jquery Plugins
 	$items = array(
 		'Jquery Cookies - lets you easily manage cookies. http://www.electrictoolbox.com/jquery-cookies/ ',
-		'Jquery Cycle - allows you to cycle through just about anything. http://malsup.com/jquery/cycle/',
+		'Jquery Cycle - allows you to cycle through just about anything. http://malsup.com/jquery_plugins/cycle/',
 		'J Carousel - makes for easy image galleries. http://sorgalla.com/jcarousel/',
 		'Masked Input - allows you to mask the input of your forms. http://digitalbush.com/projects/masked-input-plugin/',
 		'Orbital Tooltip - one of many tooltips, a little buggy but good. http://www.userfirstinteractive.com/2008/12/01/orbital-tooltip/',

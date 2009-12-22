@@ -20,16 +20,16 @@ if (Drupal.jsEnabled) {
 			return row[0].replace(/(<.+?>)/gi, '');
 		}
 		
-		$("input[@id='edit-keys']").$("input[@id='edit-search-block-form-1']").val( Drupal.t( 'Enter search terms here.' ) );
+		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").val( Drupal.t( 'Enter search terms here.' ) );
 		
-		$("input[@id='edit-keys']").$("input[@id='edit-search-block-form-1']").focus( function () {
+		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").focus( function () {
 			
 			$(this).val( '' );
 		
 		});
 		
 		//autocompete - beta
-		$("input[@id='edit-keys']").$("input[@id='edit-search-block-form-1']").autocomplete( siteSearch, {
+		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").autocomplete( siteSearch, {
 			multiple: true,
 			mustMatch: false,
 			autoFill: false
