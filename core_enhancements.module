@@ -44,7 +44,8 @@ function core_enhancements_load_js() {
 	$current_theme = variable_get('theme_default','none');
 	$themes = list_themes();
 	$theme_object = $themes[$current_theme];
-	drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', $theme_object['name'] ) ), 'setting' );
+	print_r( $theme_object );
+	drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', '' ) ), 'setting' );
 	
 	//autocomplete && search
 	//-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
