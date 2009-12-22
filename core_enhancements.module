@@ -41,13 +41,13 @@ function core_enhancements_load_js() {
 	drupal_add_js(array('drupal_get_destination' => drupal_get_destination()), 'setting');
 	
 	//autocomplete && search
-	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
-	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.ajaxQueue.js','module', 'header' );
-	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/autocomplete/jquery.autocomplete.js','module','header');
+	//-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
+	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/lib/jquery.ajaxQueue.js','module', 'footer' );
+	drupal_add_js(drupal_get_path('module', 'core_enhancements'). '/jquery/autocomplete/jquery.autocomplete.js','module','footer');
 	drupal_add_css( drupal_get_path('module', 'core_enhancements') .'/jquery/autocomplete/jquery.autocomplete.css','module' );
 	
 	//add fast autocomplete searches first
-	drupal_add_js( file_directory_path() .'/fast_autocomplete/search_all.js','module', 'header' );
+	drupal_add_js( file_directory_path() .'/fast_autocomplete/search_all.js','module', 'footer' );
 	
 	if ( variable_get( 'core_enhancements_enable_inline_editing', '' ) == 1 ) { //if inline editing is enabled
 		
