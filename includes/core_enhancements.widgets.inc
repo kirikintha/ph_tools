@@ -36,6 +36,7 @@ function _get_weather_widget( $url ) {
 	
 }
 
+//NOAA really hates consistency, so we have to make sure that each item exists, before we render it
 function theme_weather_widget ( $widget ) {
 				
   //print_r( $widget ) ;
@@ -44,18 +45,61 @@ function theme_weather_widget ( $widget ) {
 	
 	$item = '<div class="weather-widget" />';
 	
-    $item .= '<div class="weather-icon" /><img src="' .$widget->icon_url_base .$widget->icon_url_name .'" /></div>';
+    $item .= '<div class="weather-icon" />';
+    
+    if ( $widget->icon_url_base && $widget->icon_url_name )  {
+    
+      $item .= '<img src="' .$widget->icon_url_base .$widget->icon_url_name .'" />';
+    
+    }
+    
+    $item .= '</div>';
     
     $item .= '<div class="weather-info" >';
     
-      $item .= '<div class="weather-weather" >' .t ( $widget->weather ) .'</div>';
-      $item .= '<div class="weather-temp" >' .t( $widget->temperature_string ) .'</div>';
-      $item .= '<div class="weather-wind" >Wind ' .t( $widget->wind_string ) .'</div>';
-      $item .= '<div class="weather-humidity" ><h4>Humidity:</h4> ' .t( $widget->relative_humidity ) .'% (relative)</div>';
-      $item .= '<div class="weather-dewpoint" ><h4>Dew Point:</h4> ' .t( $widget->dewpoint_string ) .'</div>';
-      $item .= '<div class="weather-visibility" ><h4>Visibility:</h4> ' .t( $widget->visibility_mi ) .' miles</div>';
-      $item .= '<div class="weather-windchill" ><h4>Wind Chill:</h4> ' .t( $widget->windchill_string ) .'</div>';
+      if ( $widget->weather ) {
+        
+        $item .= '<div class="weather-weather" >' .t ( $widget->weather ) .'</div>';        
+        
+      }
+    
+      if ( $widget->temperature_string ) {
+        
+        $item .= '<div class="weather-temp" >' .t( $widget->temperature_string ) .'</div>';
+      
+      }
+      
+      if ( $widget->wind_string ) {
+        
+        $item .= '<div class="weather-wind" >Wind ' .t( $widget->wind_string ) .'</div>';
+      }
+      
+      if ( $widget->relative_humidity ) {
+        
+        $item .= '<div class="weather-humidity" ><h4>Humidity:</h4> ' .t( $widget->relative_humidity ) .'% (relative)</div>';
+      
+      }
+      
+      if ( $widget->dewpoint_string ) {
+        
+        $item .= '<div class="weather-dewpoint" ><h4>Dew Point:</h4> ' .t( $widget->dewpoint_string ) .'</div>';
+      
+      }
+      
+      if ( $widget->visibility_mi ) {
+        
+        $item .= '<div class="weather-visibility" ><h4>Visibility:</h4> ' .t( $widget->visibility_mi ) .' miles</div>';
+      
+      }
+      
+      if ( $widget->windchill_string ) {
+        
+        $item .= '<div class="weather-windchill" ><h4>Wind Chill:</h4> ' .t( $widget->windchill_string ) .'</div>';
+      
+      }
+      
       $item .= '<div class="weather-observation-time" ><small>' .t( $widget->observation_time ) .'</small></div>';
+      
       $item .= '<div class="weather-credit" ><small>' .t( $widget->credit ) .'</small></div>';
     
     $item .= '</div>';
