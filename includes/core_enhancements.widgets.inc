@@ -98,6 +98,7 @@ function theme_weather_widget ( $widget ) {
       
       }
       
+      //Of course NOAA wil always keep this?
       $item .= '<div class="weather-observation-time" ><small>' .t( $widget->observation_time ) .'</small></div>';
       
       $item .= '<div class="weather-credit" ><small>' .t( $widget->credit ) .'</small></div>';
