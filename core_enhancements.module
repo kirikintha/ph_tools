@@ -274,7 +274,7 @@ function core_enhancements_link_alter(&$node, &$links) {
  */
 function core_enhancements_form_alter($form_id, &$form) {
 	//TODO; This has to become a setting
-	if ($form_id['#id'] == 'node-form') {
+	if ( $form_id['#id'] == 'node-form' && variable_get( 'core_enhancements_enable_inline_editing', '' ) == 1 ) {
 		
 		$form_id['buttons']['cancel'] =  Array
 		(
@@ -298,6 +298,7 @@ function core_enhancements_form_alter($form_id, &$form) {
 				0 => ce_node_form_add_another_submit
 			)
 		);
+    
 	}
 
 }
