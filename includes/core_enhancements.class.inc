@@ -454,9 +454,9 @@ class coreEnhancements {
 	//Get current season
 	public static function _get_season( $to = 0 ) {
 		
-		if ( is_numeric( $to ) || $to == 0 ) {
+		if ( is_numeric( $to ) ) {
 	
-			$seasonDates = array( '/12/21'=>'Winter', '/09/21'=>'Autumn', '/06/21'=>'Summer', '/03/21'=>'Spring', '/12/31'=>'Winter' );
+			$seasonDates = array( '/12/21'=>'Winter', '/09/21'=>'Autumn', '/06/21'=>'Summer', '/03/21'=>'Spring', '/01/01'=>'Winter' );
 			
 			$season = array();
 			
