@@ -6,6 +6,9 @@
 if (Drupal.jsEnabled) {
 	
 	$(document).ready( function() {
+    
+    /**
+      *Deprecated for right now
 		
 		//search fast auto-complete		
 		function log(event, data, formatted) {
@@ -29,11 +32,14 @@ if (Drupal.jsEnabled) {
 		});
 		
 		//autocompete - beta
+
 		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").autocomplete( siteSearch, {
 			multiple: true,
 			mustMatch: false,
 			autoFill: false
 		});
+		
+    */
 	
 	} );
 	
