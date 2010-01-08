@@ -756,8 +756,12 @@ function core_enhancements_breadcrumb( $breadcrumb ) {
     
     }
     //print_r( $breadcrumb );
+
+    if ( !drupal_is_front_page() ) {
+      
+      return '<div class="breadcrumbs">'. implode( ' > ', $breadcrumbs ) .'</div>';
     
-    return '<div class="breadcrumbs">'. implode( ' > ', $breadcrumbs ) .'</div>';
+    }
   
   } else {
     
