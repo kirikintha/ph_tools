@@ -39,22 +39,31 @@ function core_enhancements_load_js() {
 	
 	//Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.setting
 	drupal_add_js( array( 'drupal_get_destination' => drupal_get_destination() ), 'setting' );
+  
 	//Add Path To Theme setting, so you can get the path to theme
-	
-	$current_theme = variable_get('theme_default','none');
-	$themes = list_themes();
-	$theme_object = $themes[$current_theme];
+	$current_theme  = variable_get('theme_default','none');
+	$themes         = list_themes();
+	$theme_object   = $themes[$current_theme];
 	//print_r( $theme_object );
 	drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', $theme_object->name ) ), 'setting' );
 	
-	//autocomplete && search
-	//-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
-	drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.ajaxQueue.js','module', 'footer' );
-	drupal_add_js( drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/autocomplete/jquery.autocomplete.js','module','footer');
-	drupal_add_css( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/jquery.autocomplete.css','module' );
-	
-	//add fast autocomplete searches first
-	drupal_add_js( file_directory_path() .'/fast_autocomplete/search_all.js','module', 'footer' );
+  if ( variable_get( 'core_enhancements_enable_fast_autocomplete', '' ) == 1 ) { //if fast autocomplete is enabled
+    
+    drupal_add_js( array( 'core_enhancements_enable_fast_autocomplete' => 1 ), 'setting' ); //Add a setting to tell your js that fast autocomplete is enabled
+    
+    //-> this can be disabled, if you are using the fusion theme drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.bgiframe.js','module', 'header' );
+    drupal_add_js( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/lib/jquery.ajaxQueue.js','module', 'footer' );
+    drupal_add_js( drupal_get_path('module', 'core_enhancements'). '/jquery_plugins/autocomplete/jquery.autocomplete.js','module','footer');
+    drupal_add_css( drupal_get_path('module', 'core_enhancements') .'/jquery_plugins/autocomplete/jquery.autocomplete.css','module' );
+    
+    //add fast autocomplete searches first
+    drupal_add_js( file_directory_path() .'/fast_autocomplete/search_all.js','module', 'footer' );
+  
+  } else {
+    
+    drupal_add_js( array( 'core_enhancements_enable_fast_autocomplete' => 0 ), 'setting' ); //Add a setting to tell your js that fast autocomplete is diasabled
+    
+  }
 	
 	if ( variable_get( 'core_enhancements_enable_inline_editing', '' ) == 1 ) { //if inline editing is enabled
 		
@@ -614,6 +623,52 @@ function core_enhancements_customize() {
 	  '#type' 					=> 'textfield', 
 	  '#default_value' 	=> variable_get('core_enhancements_fade_out_delay',5500),
 	);
+  
+  //Override Breadcrumbs
+	$form['core_enhancements']['breadcrumbs'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Use Core Enhancements Breadcrumbs'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 18
+	);
+	$output = '<p>Drupal\'s Breadcrumbs have always been lacking some kind of intelligence, this allows you to override breadcrumbs, without having to add another module. This handles most situations, but will override all breadcrumbs, as optimistially as possible.</p>';
+	$form['core_enhancements']['breadcrumbs']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['breadcrumbs']['core_enhancements_enable_breadcrumbs_override'] = array(
+	  '#title' 					=> 'Enable or disable Core Enhancements Breadcrumbs',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('core_enhancements_enable_breadcrumbs_override', '') ? variable_get('core_enhancements_enable_breadcrumbs_override', '') : 0,
+	  '#options' 				=> $options,
+	);
+  
+  //Enable - Disable Fast Autocomplete
+	$form['core_enhancements']['fast_autocomplete'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Fast Autocomplete'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> 18
+	);
+	$output = '<p>Fast Autocomplete allows your search forms to have a fast autocomplete option. This makes your site-wide search forms have a fast autccomplete, not using the Drupal throbber. Run Cron after enabling this feature!</p>';
+	$form['core_enhancements']['fast_autocomplete']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+	);
+	$options = array('DISABLE','ENABLE');
+	$form['core_enhancements']['fast_autocomplete']['core_enhancements_enable_fast_autocomplete'] = array(
+	  '#title' 					=> 'Enable or disable Core Enhancements Fast Autocomplete',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('core_enhancements_enable_fast_autocomplete', '') ? variable_get('core_enhancements_enable_fast_autocomplete', '') : 0,
+	  '#options' 				=> $options,
+	);
 
 	//Take you to XStandard if it's enabled
 	if (module_exists('xstandard')) {
@@ -640,15 +695,91 @@ function core_enhancements_customize() {
 }
 
 /**
+ * Hook Breadcrumb
+ *
+ * This has been modified to allow for a more robust breadcrumb
+ * The breadcrumb array is translated into a multidimensional array, that allows you to check the keys in the uri against each other, and then sorts by the uri
+ * Since the path alias is a good way to do this, is makes up for anything that has not been added into the breadcrumb
+ * This presumes you are using good SEO for your path aliases, and are following good Drupal SEO in general
+ * TODO: Add something to exclude via url? Like disable on admin?
+ * 
+ */
+function core_enhancements_breadcrumb( $breadcrumb ) {
+  
+  if ( variable_get( 'core_enhancements_enable_breadcrumbs_override', '' ) == 1 ) {
+  
+    $breadcrumbs = array(); //We want to give all the breadcrumbs a meaningful key, that is not a number, so if we are adding to the key, it does not already exist
+    foreach( $breadcrumb as $key => $value ) { //Preg Match the url's already coming through, and do not add a breadcrumb for the url's already made
+    
+      preg_match('/href="([^"]*)"/i', $value , $matches );
+      $newKey                   = str_replace( "/", "", $matches[1] ); //Home does not produce a match, so we need to get that in here no matter what
+      $breadcrumbs["/$newKey"]  = $value;
+    
+    }
+    
+    //print_r( $breadcrumbs );
+    
+    $path      = implode( "/", arg() ); //Implode the arg into a path, this is better than messing with the URI Request
+    $pathAlias = drupal_get_path_alias( $path ); //Get the path alias from the path, so that anything can be used as a breadcrumb
+    
+    //print_r( arg(1) );
+    $node = ( arg(0) == 'node' ) ? node_load( arg(1) ) : '' ; //Load a node from the system path, return an emtpy array, this will guarantee it is assigned properly
+    
+    $pathAliasArr   = explode( "/", $pathAlias ); //Explode the path alias into an array
+    $pathAliasKeys  = array_keys( $pathAliasArr ); //Get the Last key, so we never render that
+    $lastPathKey    = end( $pathAliasKeys );
+    
+    if ( is_array( $pathAliasArr ) ) { //If the path is an array, which means it has a depth of more than zero, then render the path out as links
+      
+      foreach( $pathAliasArr as $key => $value ) { //render keys as arrays, checking if the path exists or not
+        
+        if ( $key != $lastPathKey && !array_key_exists( "/$value", $breadcrumbs ) ) {
+          
+          $breadcrumbs["/$value"] = l( t( ucwords( str_replace( "-", " ", $value ) ) ), $value ) ;
+          
+        }
+        
+      }
+      
+    }
+    
+    //print_r( $node );
+    $lastArg  = count( arg() ) - 1; //The last argument is always one less
+    //print_r( $last );
+    $title    = empty( $node ) ? drupal_get_title() : $node->title; //if there is no node loaded, then use the page title as a backup
+    $title    = ( !menu_get_active_title() && empty( $node ) ) ? $title : menu_get_active_title(); //Get the menu title if there is one
+    $title    = ( $title == '' ) ? ucwords( str_replace( "-", " ", arg( $lastArg ) ) ) : $title; //If there is still no title, take the last argument and use that as the title
+    
+    if ( !empty( $title ) ) { //If there is no title at all, do not process the title
+    
+      $breadcrumbs["last"] = t( $title );
+    
+    }
+    //print_r( $breadcrumb );
+    
+    return '<div class="breadcrumbs">'. implode( ' > ', $breadcrumbs ) .'</div>';
+  
+  } else {
+    
+    return '<div class="breadcrumbs">'. implode( ' > ', $breadcrumb ) .'</div>'; //If this is disabled, just use Drupal's breadcrumbs
+    
+  }
+  
+}
+
+/**
  * Hook Cron
  */
 
 function core_enhancements_cron() {
 	
-	//TODO - anything in menu router atucomplete, and jquery override
+	//TODO - anything in menu router to autocomplete
 	
-	//Update the textfile for sitewide search results - default
-	ceAutocomplete::updateFastAutocomplete();
+  if ( variable_get( 'core_enhancements_enable_fast_autocomplete', '' ) == 1 ) { //if fast autocomplete is enabled
+    
+    ceAutocomplete::updateFastAutocomplete(); //Update the textfile for sitewide search results - default
+  
+  }
 	
 }
 

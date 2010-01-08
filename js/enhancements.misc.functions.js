@@ -7,41 +7,47 @@ if (Drupal.jsEnabled) {
 	
 	$(document).ready( function() {
     
-    /**
-      *Deprecated for right now
+		if ( Drupal.settings.core_enhancements_enable_fast_autocomplete == 1 ) {
+      
+      //search fast auto-complete		
+      function log(event, data, formatted) {
+        $("<li>").html( !data ? "No match!" : "Selected: " + formatted).appendTo("#result");
+      }
+      
+      function formatItem(row) {
+        return row[0] + " (<strong>id: " + row[1] + "</strong>)";
+      }
+      
+      function formatResult(row) {
+        return row[0].replace(/(<.+?>)/gi, '');
+      }
+      
+      $("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").val( Drupal.t( 'Enter search terms here.' ) );
+      
+      $("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").focus( function () {
+        
+        $(this).val( '' );
+      
+      });
+      
+      //autocompete - beta
+  
+      $("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").autocomplete( siteSearch, {
+        multiple: true,
+        mustMatch: false,
+        autoFill: false
+      });
+    
+    }
 		
-		//search fast auto-complete		
-		function log(event, data, formatted) {
-			$("<li>").html( !data ? "No match!" : "Selected: " + formatted).appendTo("#result");
-		}
-		
-		function formatItem(row) {
-			return row[0] + " (<strong>id: " + row[1] + "</strong>)";
-		}
-		
-		function formatResult(row) {
-			return row[0].replace(/(<.+?>)/gi, '');
-		}
-		
-		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").val( Drupal.t( 'Enter search terms here.' ) );
-		
-		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").focus( function () {
-			
-			$(this).val( '' );
-		
-		});
-		
-		//autocompete - beta
-
-		$("input[@id='edit-keys'], input[@id='edit-search-block-form-1']").autocomplete( siteSearch, {
-			multiple: true,
-			mustMatch: false,
-			autoFill: false
-		});
-		
-    */
-	
+    
+    //end document ready
+    
 	} );
+  
+  /**
+   * JS function here, outside of Jquery
+   */
 	
 	//Browser Detect, this was taken from http://www.quirksmode.org/js/detect.html
 	/**
