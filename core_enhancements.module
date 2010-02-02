@@ -336,9 +336,10 @@ function core_enhancements_main() {
 		'coreEnhancements::_browser_check() - this function returns the current browser, and is available to all modules. returns an array $browser[\'version\'] && $browser[\'type\']',
 		'coreEnhancements::_list_months() - this function lists all Julian Calendar Months in a nn format, for use in your select boxes!',
 		'coreEnhancements::_list_years( $startDate, $endDate ) - this function returns the years you specify. ex: return $options = listYears( date( "Y", strtotime("- 3 years") ), date( "Y", strtotime("+3 years") ) );',
-		'coreEnhancements::_list_countries_iso() - this returns all countries as of 2009. Returns an array, please see the module for the array returned',
-		'coreEnhancements::_list_us_states() - returns current US states as of 2009.',
-		'coreEnhancements::_list_canadian_provinces() - returns current Canadian Provinces as of 2009.',
+		'coreEnhancements::_list_countries_iso() - this returns all countries as of 2009. Returns an array, please see the module for the array returned.',
+		'coreEnhancements::_list_countries_iso_cck() - this returns all countries as of 2009. Returns an array that is easily useable in CCK select fields.',
+    'coreEnhancements::_list_us_states() - returns current US states as of 2009. This array is compatible with CCK, just return the value from this array.',
+		'coreEnhancements::_list_canadian_provinces() - returns current Canadian Provinces as of 2009. This array is compatible with CCK, just return the value from this array.',
     'coreEnhancements::_get_season( $to ) - returns an array (\'name\',\'date\') and allows you to get the current season ex: coreEnhancements::_get_season() or a season in the future coreEnhancements::_get_season( 180 )'
 	);
 	$output .= theme('item_list',$items,'coreEnhancements class static functions','ul');

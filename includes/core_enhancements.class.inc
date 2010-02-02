@@ -450,6 +450,21 @@ class coreEnhancements {
 			);
 		
 	}
+  
+  public static function _list_countries_iso_cck() { //get countries into a list that CCK understands
+    
+    $countries  = coreEnhancements::_list_countries_iso();
+    $countryArr = array();
+    
+    foreach ( $countries as $key => $value ) {
+    
+      $countryArr[$key] = $value['lower'];
+
+    }
+    
+    return $countryArr;
+    
+  }
 	
 	//Get current season
 	public static function _get_season( $to = 0 ) {
