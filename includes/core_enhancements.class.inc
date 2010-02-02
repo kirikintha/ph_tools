@@ -454,7 +454,7 @@ class coreEnhancements {
   public static function _list_countries_iso_cck() { //get countries into a list that CCK understands
     
     $countries  = coreEnhancements::_list_countries_iso();
-    $countryArr = array( 'NULL' => 'none' );
+    $countryArr = array( 'NULL' => '- None -' );
     
     foreach ( $countries as $key => $value ) {
     
