@@ -352,7 +352,7 @@ function core_enhancements_main() {
 		'Drupal.serialize( data, prefix ) - outputs serialized data into a uriendcoded serialized array, useful for posting data back to drupal',
 		'Drupal.urlDecode( encodedString ) - emulates PHP\'s urldecode function',
 		'Drupal.saveCookie( name, data, discontinues, domain ) - allows you to save a cookie properly in your browser',
-		'Drupal.deleteCookie( name ) - deletes a cookie properly fomr the system',
+		'Drupal.deleteCookie( name ) - deletes a cookie properly from the system',
 		'Drupal.scollTo( target ) - scrolls the browser window to a specific point, much like using anchor tags',
 		'Drupal.validateForm( formTarget, pageTarget, showSubmit ) - check a specific div that contains a form to check the fields for unfilled required fields. Also, this will find any email addresses and validate those as well.',
 		'Drupal.theme( \'progress\', target, j, total, startMessage, endMessage ) - allows you to create multiple progress bars on one page, emulates theme(\'progress\')',
@@ -628,7 +628,7 @@ function core_enhancements_customize() {
   //Override Breadcrumbs
 	$form['core_enhancements']['breadcrumbs'] = array(
 		'#type' 				=> 'fieldset',
-		'#title' 				=> t('Use Core Enhancements Breadcrumbs'),
+		'#title' 				=> t('BETA - Use Core Enhancements Breadcrumbs - BETA'),
 		'#collapsible' 	=> TRUE,
 		'#collapsed' 		=> TRUE,
 		'#weight'				=> 18
@@ -651,7 +651,7 @@ function core_enhancements_customize() {
   //Enable - Disable Fast Autocomplete
 	$form['core_enhancements']['fast_autocomplete'] = array(
 		'#type' 				=> 'fieldset',
-		'#title' 				=> t('Fast Autocomplete'),
+		'#title' 				=> t('BETA - Fast Autocomplete - BETA'),
 		'#collapsible' 	=> TRUE,
 		'#collapsed' 		=> TRUE,
 		'#weight'				=> 18
