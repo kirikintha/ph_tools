@@ -1,0 +1,4 @@
+name        = "Custom Enhancements"
+description = "A set of enhancements and jquery libraries for you to use in your site."
+package     = "Custom Enhancements"
+core        = "6.x"

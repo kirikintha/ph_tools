@@ -1,0 +1,84 @@
+<?php
+/**
+ * Hook install
+ */
+
+function custom_enhancements_install() {
+  
+  //set variables
+  variable_set( 'custom_enhancements_views_strip_keys_keys', 'node_;data_;_value;field_;__');
+  variable_set( 'custom_enhancements_enable_jquery_carousel' , 0 );
+  variable_set( 'custom_enhancements_enable_jquery_cycle' , 0 );
+  variable_set( 'custom_enhancements_enable_jquery_maskedinput' , 0 );
+  variable_set( 'custom_enhancements_enable_jquery_orbitaltooltip' , 0 );
+  variable_set( 'custom_enhancements_enable_jquery_preloadimages' , 0 );
+  variable_set( 'custom_enhancements_enable_jquery_pngfix' , 0 );
+  
+}
+
+/**
+ * Hook uninstall
+ */
+function custom_enhancements_uninstall() {
+  
+  //del variables
+  variable_del( 'custom_enhancements_views_strip_keys_keys');
+  variable_del( 'custom_enhancements_enable_jquery_carousel');
+  variable_del( 'custom_enhancements_enable_jquery_cycle');
+  variable_del( 'custom_enhancements_enable_jquery_maskedinput');
+  variable_del( 'custom_enhancements_enable_jquery_orbitaltooltip');
+  variable_del( 'custom_enhancements_enable_jquery_preloadimages' );
+  variable_del( 'custom_enhancements_enable_jquery_pngfix' );
+  
+}
+
+/**
+ * Hook Requirements
+ */
+function property_requirements( $phase ) {
+  
+  $requirements = array();
+  
+  switch ( $phase ) {
+    
+    case 'install':
+    break;
+  
+    case 'runtime':
+      
+      $requirements['custom_enhancements'] = array(
+        'title'       => t( 'Custom Enhancements' ),
+        'value'       => t( 'Runtime Requirements' ),
+        'description' => t( 'Custom Enhancements has been successfully installed.' ),
+        'severity'    => WATCHDOG_OK
+      );
+      
+    break;
+    
+  }
+  
+  return $requirements;
+  
+}
+
+/**
+ * Hook Enable
+ */
+function property_enable() {
+  
+  $output['!welcome'] = "You have successfully enabled the Custom Enhancements Module. Please look at the module documentation for more help in development, and please note that some of these features are in BETA.";
+  
+  drupal_set_message( t( "!welcome", $output ) );
+  
+}
+
+/**
+ * Hook Disable
+ */
+function property_disable() {
+  
+  $output['!goodbye'] = "Custom Enhancements Module sucessfully disabled.";
+  
+  drupal_set_message( t( "!goodbye", $output ) );
+  
+}

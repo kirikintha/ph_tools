@@ -1,17 +1,28 @@
 <?php
 /**
- * Core Enhancements Class
- * This contains all the available public static functions that can be called
- * I wanted to have this remain in a class, so I never run into namespace issues
- * All functions are available through static variables
+ * @name Custom Enhancements
+ * A set of re-useable functions:
+ * @static _strip_views_keys($str)
+ * @static _set_header_nocache()
+ * @static _browser_check()
+ * @static _list_months()
+ * @static _list_years( $startDate, $endDate )
+ * @static _list_canadian_provinces()
+ * @static _list_us_states()
+ * @static _list_countries_iso()
+ * @static _list_countries_iso_cck()
+ * @static _get_season( $to = 0 )
  */
 
-class coreEnhancements {
+class customEnhancements {
 
-	//Strip out views keys you don't need
-	public static function _strip_views_keys($str) {
+	/**
+   * @name _strip_views_keys( $str )
+   * Strips out repetetive views keys from views array keys, helpful when trying to cut down the lengths of very long views array keys
+   */
+	public static function _strip_views_keys( $str ) {
 		
-		$keywords = explode( ";", variable_get( 'core_enhancements_views_strip_keys_keys', '' ) );
+		$keywords = explode( ";", variable_get( 'custom_enhancements_views_strip_keys_keys', '' ) );
 		
 		$mixedSearch 	= array();
 		$mixedReplace = array();
@@ -29,7 +40,10 @@ class coreEnhancements {
 	
 	}
 	
-	//Set browser not to cache AJAX return results.
+  /**
+   * @name _set_header_nocache()
+   * Set browser not to cache AJAX return results.
+   */
 	public static function _set_header_nocache() {
 		
 		header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
@@ -40,7 +54,10 @@ class coreEnhancements {
 		
 	}
 	
-	//This is to check for browser differences and use the approriate xstandard object for either IE or Mozilla/Netscape browsers
+	/**
+   * @name _browser_check()
+   * @return an array $browser with the keys: $browser['version'] && $browser['type']
+   */
 	public static function _browser_check() {
 		
 		$useragent = $_SERVER['HTTP_USER_AGENT'];
@@ -70,7 +87,10 @@ class coreEnhancements {
 	
 	}
 	
-	//list all months.
+	/**
+   * @name _list_months()
+   * @return array of all months listed in the Julian Calendar
+   */
 	public static function _list_months() {
 		
 		return array(
@@ -91,9 +111,12 @@ class coreEnhancements {
 	}
 		
 	/**
-	 * List all Years, with start date, and end date.
+   * @name _list_years( $startDate, $endDate )
+	 * List all Years in the form of yyyy in between the start date and end date you supply.
 	 * Start Date must be a date earlier than the end date
-	 * This public static function only returns YYYY
+	 * @param $startDate
+	 * @param $endDate
+	 * @return array $years[YYYY] = YYYY
 	 */
 	public static function _list_years( $startDate, $endDate ) {
 		
@@ -114,7 +137,8 @@ class coreEnhancements {
 	}
 	
 	/**
-	 * returns canadian provinces
+	 * @name _list_canadian_provinces()
+	 * @return array a list of Canadian Provinces that CCK can understand
 	 */
 	public static function _list_canadian_provinces() {
 		
@@ -138,7 +162,8 @@ class coreEnhancements {
 	}
 	
 	/**
-	 * Returns current US States
+	 * @name _list_us_states()
+	 * @return array a list of US states that CCK fields can easily understand
 	 */
 	public static function _list_us_states() {
 		
@@ -197,16 +222,13 @@ class coreEnhancements {
 		
 	}
 	
-	/**
-		 * List Countries ISO
-		 * This is the definitive list of Countries, in ISO format, this rocks
-		 * upper
-		 * lower
-		 * alpha3
-		 * numeric
-		 */
+  /**
+   * @name _list_countries_iso()
+   * A list of current world countries and their ISO code, useful when using shipping
+   * @return array of countries, with the keys: upper lower alpha3 numeric
+   */
 	public static function _list_countries_iso() {
-		
+
 		return array(
 			'AF' => array('upper'=>'AFGHANISTAN','lower'=>'Afghanistan','alpha3'=>'AFG','numeric'=>'004'),
 			'AL' => array('upper'=>'ALBANIA','lower'=>'Albania','alpha3'=>'ALB','numeric'=>'008'),
@@ -301,7 +323,7 @@ class coreEnhancements {
 			'GY' => array('upper'=>'GUYANA','lower'=>'Guyana','alpha3'=>'GUY','numeric'=>'328'),
 			'HT' => array('upper'=>'HAITI','lower'=>'Haiti','alpha3'=>'HTI','numeric'=>'332'),
 			'HM' => array('upper'=>'HEARD ISLAND AND MCDONALD ISLANDS','lower'=>'Heard Island and Mcdonald Islands','alpha3'=>NULL,'numeric'=>NULL),
-			'VA' => array('upper'=>'HOLY SEEVATICAN CITY STATE)','lower'=>'Holy SeeVatican City State)','alpha3'=>'VAT','numeric'=>'336'),
+			'VA' => array('upper'=>'HOLY SEE (VATICAN CITY STATE)','lower'=>'Holy See (Vatican City State)','alpha3'=>'VAT','numeric'=>'336'),
 			'HN' => array('upper'=>'HONDURAS','lower'=>'Honduras','alpha3'=>'HND','numeric'=>'340'),
 			'HK' => array('upper'=>'HONG KONG','lower'=>'Hong Kong','alpha3'=>'HKG','numeric'=>'344'),
 			'HU' => array('upper'=>'HUNGARY','lower'=>'Hungary','alpha3'=>'HUN','numeric'=>'348'),
@@ -319,8 +341,8 @@ class coreEnhancements {
 			'KZ' => array('upper'=>'KAZAKHSTAN','lower'=>'Kazakhstan','alpha3'=>'KAZ','numeric'=>'398'),
 			'KE' => array('upper'=>'KENYA','lower'=>'Kenya','alpha3'=>'KEN','numeric'=>'404'),
 			'KI' => array('upper'=>'KIRIBATI','lower'=>'Kiribati','alpha3'=>'KIR','numeric'=>'296'),
-			'KP' => array('upper'=>'KOREA', 'lower'=>'DEMOCRATIC PEOPLE\'S REPUBLIC OF','Korea, Democratic People\'s Republic of','alpha3'=>'PRK','numeric'=>'408'),
-			'KR' => array('upper'=>'KOREA', 'lower'=>'REPUBLIC OF','Korea, Republic of','alpha3'=>'KOR','numeric'=>'410'),
+			'KP' => array('upper'=>'KOREA', 'lower'=>'Korea, Democratic People\'s Republic of','alpha3'=>'PRK','numeric'=>'408'),
+			'KR' => array('upper'=>'KOREA', 'lower'=>'Korea, Republic of','alpha3'=>'KOR','numeric'=>'410'),
 			'KW' => array('upper'=>'KUWAIT','lower'=>'Kuwait','alpha3'=>'KWT','numeric'=>'414'),
 			'KG' => array('upper'=>'KYRGYZSTAN','lower'=>'Kyrgyzstan','alpha3'=>'KGZ','numeric'=>'417'),
 			'LA' => array('upper'=>'LAO PEOPLE\'S DEMOCRATIC REPUBLIC','lower'=>'Lao People\'s Democratic Republic','alpha3'=>'LAO','numeric'=>'418'),
@@ -448,12 +470,16 @@ class coreEnhancements {
 			'ZM' => array('upper'=>'ZAMBIA','lower'=>'Zambia','alpha3'=>'ZMB','numeric'=>'894'),
 			'ZW' => array('upper'=>'ZIMBABWE','lower'=>'Zimbabwe','alpha3'=>'ZWE','numeric'=>'716')
 			);
-		
+
 	}
   
-  public static function _list_countries_iso_cck() { //get countries into a list that CCK understands
+  /**
+   * @name _list_countries_iso_cck()
+   * @return array a list of countries that CCK fields can easily understand
+   */
+  public static function _list_countries_iso_cck() {
     
-    $countries  = coreEnhancements::_list_countries_iso();
+    $countries  = customEnhancements::_list_countries_iso();
     $countryArr = array( 'NULL' => '- None -' );
     
     foreach ( $countries as $key => $value ) {
@@ -466,7 +492,12 @@ class coreEnhancements {
     
   }
 	
-	//Get current season
+	/**
+   * @name _get_season( $to = 0 )
+   * Get the season name, Winter, Autumn, Summer, Spring, Winter and it's date
+   * @param integer $to a value in the future for the season you wish to select
+   * @return array $season['name'] $season['date']
+   */
 	public static function _get_season( $to = 0 ) {
 		
 		if ( is_numeric( $to ) ) {
@@ -492,7 +523,7 @@ class coreEnhancements {
 		
 		} else {
 			
-			drupal_set_message( 'You must use a numeric value for the variable $to getSeason( $to ), please look at this public static function and enter in a numeric value.', 'error' );
+			drupal_set_message( 'You must use a numeric value for the variable $to _getSeason( $to ), please look at this public static function and enter in a numeric value.', 'error' );
 			
 		}
 	
@@ -501,9 +532,12 @@ class coreEnhancements {
 }
 
 /**
- * Faster Autocomplete functionality
+ * @name ceAutocomplete
+ * Adds Faster Autocomplete functionality
+ * @todo Make this work for your own parameters, and test functionality
+ * @version 0.1 BETA
  */
-class ceAutocomplete extends coreEnhancements {
+class ceAutocomplete extends customEnhancements {
 	
 	public static function updateFastAutocomplete( $type = 'all' ) {
 		
@@ -544,10 +578,175 @@ class ceAutocomplete extends coreEnhancements {
 		
 		if ( $success ) {
 			
-			watchdog( 'Core Enhancements', t( 'Fast Autocomplete Search Finished' ) );
+			watchdog( 'Custom Enhancements', t( 'Fast Autocomplete Search Finished' ) );
 			
 		}
 		
 	}
 	
+}
+
+/**
+ * @name ceWidgets
+ */
+
+class ceWidgets extends customEnhancements {
+  
+  /**
+    * @name _get_weather_widget( $url )
+    * returns a weather widget from NOAA's XML
+    * @param string $url a valid url for creating the widget
+    * @return html of the weather widget from the $widget array
+    * $widget->icon_url_base
+    * $widget->icon_url_name
+    * $widget->weather
+    * $widget->temperature_string
+    * $widget->wind_string
+    * $widget->relative_humidity
+    * $widget->dewpoint_string
+    * $widget->visibility_mi
+    * $widget->windchill_string
+    * $widget->observation_time
+    * $widget->credit
+  */
+  public static function _get_weather_widget( $url ) {
+    
+    if ( !empty( $url ) && strstr( $url, 'http://www.weather.gov/xml/current_obs' ) ) { //check to see if the url is valid
+      
+      $url = $url . '?nocache=' .md5( time() ); //make sure the xml does not cache
+      $xml = simplexml_load_file ( $url );
+      
+      //print_r( $xml );
+      
+      $widget = new stdClass;
+      
+      foreach ( $xml as $key => $value ) {
+        
+        $widget->$key = (string) trim( $value );
+        
+      }
+      
+      return theme( 'weather_widget', $widget );
+      
+    } else {
+      
+      drupal_set_message( t( 'You have not entered in a valid url, please enter in a url destination from http://www.weather.gov/xml/current_obs' ), 'error' );
+      
+    }
+    
+  }
+  
+}
+
+/**
+ * @name _ceAdmin
+ */
+class customEnhancementsAdmin {
+  
+  /**
+   * @name _custom_enhancements_load_js()
+   * Load Jquery, Jquery UI and Preload images via the admin settings
+   */
+  public static function _custom_enhancements_load_js() {
+    
+    //Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.settings
+    drupal_add_js( array( 'drupal_get_destination' => drupal_get_destination() ), 'setting' );
+    
+    //Add Path To Theme setting, so you can get the path to theme
+    $current_theme  = variable_get('theme_default','none');
+    $themes         = list_themes();
+    $theme_object   = $themes[$current_theme];
+    //print_r( $theme_object );
+    drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', $theme_object->name ) ), 'setting' );
+    
+    //Drupal Functions
+    drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/js/enhancements.drupal.functions.js','module','header');
+  
+    //cookie
+    drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/cookies/jquery.cookies.js','module','header');
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_cycle', '' ) == 1 ) { //enable cycle?
+    
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/cycle/jquery.cycle.js','module','header');
+    
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_carousel', '' ) == 1 ) { //enable carousel?
+    
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/carousel/lib/jquery.jcarousel.js','module','header');
+      drupal_add_css( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/carousel/lib/jquery.jcarousel.css', 'module', 'all', false);
+      drupal_add_css( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/carousel/skins/tango/skin.css', 'module', 'all', false);
+    
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_maskedinput', '' ) == 1 ) { //enable masked input?
+    
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/maskedinput/jquery.maskedinput.js','module','footer');
+      
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_orbitaltooltip', '' ) == 1 ) { //enable tooltip?
+    
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/orbitaltooltip/jquery.orbitaltooltip.js','module','footer');
+    
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_preloadimages', '' ) == 1 ) { //enable preload css images?
+      
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/preloadimages/jquery.preloadimages.js','module','header');
+      $jsCSS = '$(document).ready(function(){$.preloadCssImages();});';
+      drupal_add_js($jsCSS,'inline','header');
+    
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_pngfix', '' ) == 1 ) { //enable pngFix?
+      
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/pngFix/jquery.pngFix.js','module','header');
+      $jsPNG = '$(document).ready(function(){$(document).pngFix();});';
+      drupal_add_js($jsPNG,'inline','header');
+    
+    }
+    
+    //Miscellaneous Functions, should stay at the end
+    drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/js/enhancements.misc.functions.js','module','footer');
+    
+    //check if messages can fade
+    self::_custom_enhancements_message_can_fade();
+    
+  }
+  
+  /**
+   * @name _custom_enhancements_message_can_fade()
+   * Find out if the path given is valid for fading out messages
+   */
+  function _custom_enhancements_message_can_fade() {
+    
+    $path 	= drupal_get_path_alias($_GET['q']);
+    $regexp = '/^('. preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1'. preg_quote(variable_get('site_frontpage', 'node'), '/') .'\2'), preg_quote(variable_get('custom_enhancements_fade_out_paths', ""), '/')) .')$/';
+  
+    $found 	= preg_match($regexp, $path);
+  
+    if ($found != 1 && variable_get('fade_messages_override', '') == 1 ) {
+      
+      $classes 		= explode("\n",variable_get('custom_enhancements_classes_to_fade', "" ));
+  
+      $jsFadeOut 		= '$(document).ready(function(){ setTimeout(function(){ ';
+      
+      //you have to list these individually, or IE throws fits
+      foreach ($classes as $class) {
+        
+        $class = str_replace("\r", "", $class);
+        $class = str_replace("\n", "", $class);
+  
+        $jsFadeOut 	.= '$(".' .$class .'").fadeOut();';
+      }
+      
+      $jsFadeOut 		.= '} ,' .variable_get('custom_enhancements_fade_out_delay',5500) .'); });';
+      
+      drupal_add_js($jsFadeOut,'inline','header');
+      
+    }
+      
+  }
+  
 }

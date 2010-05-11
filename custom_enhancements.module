@@ -1,0 +1,109 @@
+<?php
+/**
+* @name Custom Enhancements Module
+* Provides a set of re-useable functions, helpers, re-useable arrays, javascript and jquery enhancements to Drupal 6's feature set
+* @author Paul T. Huntsberger courtesy of our friends at Blue Tent Marketing
+* @version 1.0
+*/
+
+//Define Constants
+define( "CUSTOM_ENHANCEMENTS_MODULE_PATH", drupal_get_path( 'module', 'custom_enhancements' ) );
+
+//Include customEnhancements Class
+include_once( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/includes/class.customEnhancements.inc' );
+
+//Include functions and widgets
+include_once( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/includes/functions.customEnhancements.inc' );
+
+//Include Admin
+include_once( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/includes/admin.customEnhancements.inc' );
+
+/**
+ * Hook Menu
+ */
+function custom_enhancements_init() { //Load the relevent js
+  
+  customEnhancementsAdmin::_custom_enhancements_load_js();
+  
+}
+
+/**
+ * Hook Menu
+ */
+function custom_enhancements_menu() {
+	
+	$items = array();
+	
+	$items['admin/settings/custom_enhancements'] = array(
+		'title'             => "Custom Enhancements",
+		'page callback'     => 'drupal_get_form',
+		'page arguments'    => array('_custom_enhancements_main'),
+		'type'              => MENU_NORMAL_ITEM,
+		'access arguments'  => array('administer site configuration')
+	);
+	
+	$items['admin/settings/custom_enhancements/main'] = array(
+		'path' 				=> 'admin/settings/custom_enhancements/main',
+		'title' 			=> t('Main Information'),
+		'type' 				=> MENU_DEFAULT_LOCAL_TASK,
+		'weight' 			=> -10,
+		'access arguments'  => array('administer site configuration')
+	);
+	
+	$items['admin/settings/custom_enhancements/customize'] = array(
+		'title' 			=> t('Customize Enhancements'),
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('_custom_enhancements_customize'),
+		'type'				=> MENU_LOCAL_TASK,
+		'access arguments'  => array('administer site configuration')
+	);
+	
+	return $items;
+
+}
+
+/**
+ * Hook theme
+ */
+function custom_enhancements_theme() {
+	
+	return array (
+		
+		'weather_widget' => array (
+      'path'      => CUSTOM_ENHANCEMENTS_MODULE_PATH,
+      'template'  => 'theme/weather_widget',
+			'arguments' => array( 'widget' => NULL ),
+		)
+
+	);
+	
+}
+
+/**
+ * Hook User
+ */
+function custom_enhancements_user( $op, &$edit, &$account, $category = NULL ) {
+	switch ($op) {
+		case 'load':
+		case 'update':
+			//if image cache module, reacache the user image when the user loads their profile
+			if (function_exists('imagecache_image_flush')) {
+				imagecache_image_flush($account->picture);
+			}
+		break;
+	}
+}
+
+/**
+ * Implementation of preprocess_page()
+ */
+function custom_enhancements_preprocess_page( &$vars ) {
+	
+	//remove personal files tab, if the imce module exists, and if there is not a permission level for uploading files
+	if ( module_exists('imce') || module_exists('fckeditor') ) {
+		if (!user_access('allow fckeditor file uploads') || !user_access('upload files') ) {
+			$vars['tabs'] = preg_replace('/<li.*File browser<\/a><\/li>/', '', $vars['tabs']);
+		}
+	}
+	
+}
