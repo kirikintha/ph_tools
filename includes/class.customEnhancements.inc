@@ -590,7 +590,7 @@ class ceAutocomplete extends customEnhancements {
  * @name ceWidgets
  */
 
-class ceWidgets extends customEnhancements {
+class customEnhancementsWidgets {
   
   /**
     * @name _get_weather_widget( $url )
