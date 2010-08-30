@@ -84,7 +84,7 @@ if (Drupal.jsEnabled) {
 		if ( discontinues == null ) { discontunies = 0; }
 		if ( domain == null || domain == undefined ) { domain = '/'; }
 		
-		deleteCookie( name ); //delete the cookie so we know we always have a fresh cookie
+		Drupal.deleteCookie( name ); //delete the cookie so we know we always have a fresh cookie
 		$.cookie(name, data, {
 			path:			domain,
 			expires: 	discontinues
@@ -97,7 +97,7 @@ if (Drupal.jsEnabled) {
   //delete cookie
 	Drupal.deleteCookie = function ( name ) {
       
-      $.cookie(type, null);
+      $.cookie(name, null);
         
 	}
     
