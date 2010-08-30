@@ -14,7 +14,6 @@
  * $widget->credit
  */
 ?>
-	
 <div class="weather-widget">
 	
   <div class="weather-icon" />

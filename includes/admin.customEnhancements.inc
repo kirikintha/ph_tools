@@ -2,6 +2,7 @@
 
 /**
  * @name _custom_enhancements_main()
+ * @todo turn this into a a theme
  */
 function _custom_enhancements_main() {
 	
@@ -52,6 +53,7 @@ function _custom_enhancements_main() {
 		'Jquery Cycle - allows you to cycle through just about anything. http://malsup.com/jquery_plugins/cycle/',
 		'J Carousel - makes for easy image galleries. http://sorgalla.com/jcarousel/',
 		'Masked Input - allows you to mask the input of your forms. http://digitalbush.com/projects/masked-input-plugin/',
+    'Shadowbox - a web-based media viewer application http://www.shadowbox-js.com/usage.html',
 		'Orbital Tooltip - one of many tooltips, a little buggy but good. http://www.userfirstinteractive.com/2008/12/01/orbital-tooltip/',
 		'Preload CSS Images, preload your CSS url() images. http://www.filamentgroup.com/lab/update_automatically_preload_images_from_css_with_jquery/',
   	'PNG Fix, fix PNG transparency in IE 5 && 6. http://jquery.andreaseberhard.de/pngFix/'
@@ -59,7 +61,7 @@ function _custom_enhancements_main() {
 	$output .= theme('item_list',$items,'Jquery Plugins','ul');
 	
 	//Output everything to the markup field
-	$form['core_enhancements']['main'] = array(
+	$form['main'] = array(
     '#type'   => 'markup',
     '#value'  => $output,
     '#weight' => 0,
@@ -70,141 +72,202 @@ function _custom_enhancements_main() {
 }
 
 //Customizeable Elements
+//@todo make this an array that loops over the $form array?
 function _custom_enhancements_customize() {
 	
-	$output = '<p><strong>Customize your Enhancements</strong>: Each Enhancement is placed inside it\'s own collapsable fieldset, referenced by it\'s name on the main page.</p>';
-	$form['core_enhancements']['customize'] = array(
-	'#type' 	=> 'markup',
-	'#value' 	=> $output,
-	'#weight' => 0,
-	);
-	
 	//Jquery Library options
-	$form['core_enhancements']['jquery_plugins'] = array(
+	$form['jquery_plugins'] = array(
 		'#type' 				=> 'fieldset',
 		'#title' 				=> t('Jquery Plug-ins'),
 		'#collapsible' 	=> FALSE,
 		'#collapsed' 		=> FALSE,
-		'#weight'				=> -20
+		'#weight'				=> -20,
+    '#group'        => 'jquery_plugins'
 	);
   
 	$output = '<p>Jquery plugins are plugins that can be enabled globally. All plug-ins are enabled by default</p>';
-	$form['core_enhancements']['jquery_plugins']['info'] = array(
+	$form['jquery_plugins']['info'] = array(
 		'#type' 	=> 'markup',
 		'#value' 	=> $output,
 		'#weight' => 0,
+    '#group'  => 'jquery_plugins'
 	);
   
 	$options = array('DISABLE','ENABLE');
-	$form['core_enhancements']['jquery_plugins']['custom_enhancements_enable_jquery_carousel'] = array(
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_carousel'] = array(
 	  '#title' 					=> 'Enable or disable Jquery Carousel',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_carousel', '') ? variable_get('custom_enhancements_enable_jquery_carousel', '') : 0,
 	  '#options' 				=> $options,
+    '#weight'         => 1,
+    '#group'          => 'jquery_plugins'
 	);
   
-	$form['core_enhancements']['jquery_plugins']['custom_enhancements_enable_jquery_cycle'] = array(
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_cycle'] = array(
 	  '#title' 					=> 'Enable or disable Jquery Cycle',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_cycle', '') ? variable_get('custom_enhancements_enable_jquery_cycle', '') : 0,
 	  '#options' 				=> $options,
+    '#weight'         => 2,
+    '#group'          => 'jquery_plugins'
 	);
   
-	$form['core_enhancements']['jquery_plugins']['custom_enhancements_enable_jquery_maskedinput'] = array(
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_maskedinput'] = array(
 	  '#title' 					=> 'Enable or disable Jquery Masked Input',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_maskedinput', '') ? variable_get('custom_enhancements_enable_jquery_maskedinput', '') : 0,
 	  '#options' 				=> $options,
+    '#weight'         => 3,
+    '#group'          => 'jquery_plugins'
 	);
   
-	$form['core_enhancements']['jquery_plugins']['custom_enhancements_enable_jquery_orbitaltooltip'] = array(
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_shadowbox'] = array(
+	  '#title' 					=> 'Enable or disable Shadowbox',
+	  '#description' 		=> '',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_shadowbox', '') ? variable_get('custom_enhancements_enable_jquery_shadoxbox', '') : 0,
+	  '#options' 				=> $options,
+    '#weight'         => 4,
+    '#group'          => 'jquery_plugins'
+	);
+  
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_niceforms'] = array(
+	  '#title' 					=> 'Enable or disable jqTransform',
+	  '#description' 		=> 'jqTransform is a theme override system, that takes control over Drupal\'s form elements.',
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_niceforms', '') ? variable_get('custom_enhancements_enable_jquery_niceforms', '') : 0,
+	  '#options' 				=> $options,
+    '#weight'         => 5,
+    '#group'          => 'jquery_plugins'
+	);
+  
+  $css = variable_get( 'custom_enhancements_enable_jquery_niceforms_css', CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/jqtransform/jqtransform.css' );
+  $form['jquery_plugins']['custom_enhancements_enable_jquery_niceforms_css'] = array(
+	  '#title' 					=> 'jqTransform CSS File Locations',
+	  '#description' 		=> 'If you wish to change the location in which Nice Forms styles the forms, change it here.',
+	  '#type' 					=> 'textfield', 
+	  '#default_value' 	=> $css,
+    '#weight'         => 6,
+    '#group'          => 'jquery_plugins'
+	);
+  
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_orbitaltooltip'] = array(
 	  '#title' 					=> 'Enable or disable Jquery Orbital Tooltip',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_orbitaltooltip', '') ? variable_get('custom_enhancements_enable_jquery_orbitaltooltip', '') : 0,
 	  '#options' 				=> $options,
+    '#weight'         => 7,
+    '#group'          => 'jquery_plugins'
 	);
   
-	$form['core_enhancements']['jquery_plugins']['custom_enhancements_enable_jquery_preloadimages'] = array(
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_preloadimages'] = array(
 	  '#title' 					=> 'Enable or disable Jquery Preload Images from CSS',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_preloadimages', '') ? variable_get('custom_enhancements_enable_jquery_preloadimages', '') : 0,
 	  '#options' 				=> $options,
+    '#weight'         => 8,
+    '#group'          => 'jquery_plugins'
 	);
   
-	$form['core_enhancements']['jquery_plugins']['custom_enhancements_enable_jquery_pngfix'] = array(
+	$form['jquery_plugins']['custom_enhancements_enable_jquery_pngfix'] = array(
 	  '#title' 					=> 'Enable or disable Jquery PNG Fix',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_pngfix', '') ? variable_get('custom_enhancements_enable_jquery_pngfix', '') : 0,
 	  '#options' 				=> $options,
-	);
-	
-	//Strip Keys
-	$form['core_enhancements']['views_strip_keys'] = array(
-		'#type' 				=> 'fieldset',
-		'#title' 				=> t('Views Strip Keys'),
-		'#collapsible' 	=> TRUE,
-		'#collapsed' 		=> TRUE,
-		'#weight'				=> 17
-	);
-	$output = '<p>Strip out Views Keyes allows you to trim down views keys to a reasonable key.</p>';
-	$form['core_enhancements']['views_strip_keys']['info'] = array(
-		'#type' 	=> 'markup',
-		'#value' 	=> $output,
-		'#weight' => 0,
-	);
-	$form['core_enhancements']['views_strip_keys']['custom_enhancements_views_strip_keys_keys'] = array(
-	  '#title' 					=> 'Keywords to strip',
-	  '#description' 		=> 'Enter in keywords to srtip, this will strip out everything! Spearate by a semi-colon',
-	  '#type' 					=> 'textarea', 
-	  '#default_value' 	=> variable_get('custom_enhancements_views_strip_keys_keys', "" ),
+    '#weight'         => 9,
+    '#group'          => 'jquery_plugins'
 	);
 
 	//Fade messages
-	$form['core_enhancements']['fade_messages'] = array(
+	$form['fade_messages'] = array(
 		'#type' 				=> 'fieldset',
 		'#title' 				=> t('Fade Out Messages'),
 		'#collapsible' 	=> FALSE,
 		'#collapsed' 		=> FALSE,
-		'#weight'				=> -19
+		'#weight'				=> -19,
+    '#group'          => 'fade_messages'
 	);
+  
 	$output = '<p>Drupal status, warning and error messages stick to the page. This allows you to set which messages fade, and on which urls</p>';
-	$form['core_enhancements']['fade_messages']['info'] = array(
+	$form['fade_messages']['info'] = array(
 		'#type' 	=> 'markup',
 		'#value' 	=> $output,
 		'#weight' => 0,
+    '#group'  => 'fade_messages'
 	);
+  
 	$options = array('DISABLE','ENABLE');
-	$form['core_enhancements']['fade_messages']['fade_messages_override'] = array(
+	$form['fade_messages']['fade_messages_override'] = array(
 	  '#title' 					=> 'Enable or disable message fading',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
 	  '#default_value' 	=> variable_get('fade_messages_override', '') ? variable_get('fade_messages_override', '') : 0,
 	  '#options' 				=> $options,
+    '#weight'         => 1,
+    '#group'          => 'fade_messages'
 	);
-	$form['core_enhancements']['fade_messages']['custom_enhancements_classes_to_fade'] = array(
+  
+	$form['fade_messages']['custom_enhancements_classes_to_fade'] = array(
 	  '#title' 					=> 'Classes to fade',
 	  '#description' 		=> 'Enter the class names of the classes of the messages you wish to fade.',
 	  '#type' 					=> 'textarea', 
 	  '#default_value' 	=> variable_get('custom_enhancements_classes_to_fade', "status\nwarning" ),
+    '#weight'         => 2,
+    '#group'          => 'fade_messages'
 	);
-	$form['core_enhancements']['fade_messages']['custom_enhancements_fade_out_paths'] = array(
+  
+	$form['fade_messages']['custom_enhancements_fade_out_paths'] = array(
 	  '#title' 					=> 'Paths to exclude from fading',
 	  '#description' 		=> 'Enter the paths you do NOT want to fade, like the admin section.',
 	  '#type' 					=> 'textarea', 
 	  '#default_value' 	=> variable_get('custom_enhancements_fade_out_paths', "admin*\n"),
+    '#weight'         => 3,
+    '#group'          => 'fade_messages'
 	);
-	$form['core_enhancements']['fade_messages']['custom_enhancements_fade_out_delay'] = array(
+  
+	$form['fade_messages']['custom_enhancements_fade_out_delay'] = array(
 	  '#title' 					=> 'Timeout before fade happens',
 	  '#description' 		=> 'Enter the timeout value, in miliseconds before the timeout fires the fade out',
 	  '#type' 					=> 'textfield', 
 	  '#default_value' 	=> variable_get('custom_enhancements_fade_out_delay',5500),
+    '#weight'         => 4,
+    '#group'          => 'fade_messages'
 	);
+  
+	//Strip Keys
+	$form['views_strip_keys'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Views Strip Keys'),
+		'#collapsible' 	=> TRUE,
+		'#collapsed' 		=> TRUE,
+		'#weight'				=> -18,
+    '#group'        => 'views_strip_keys'
+	);
+  
+	$output = '<p>Strip out Views Keyes allows you to trim down views keys to a reasonable key.</p>';
+	$form['views_strip_keys']['info'] = array(
+		'#type' 	=> 'markup',
+		'#value' 	=> $output,
+		'#weight' => 0,
+    '#group'  => 'views_strip_keys'
+	);
+  
+	$form['views_strip_keys']['custom_enhancements_views_strip_keys_keys'] = array(
+	  '#title' 					=> 'Keywords to strip',
+	  '#description' 		=> 'Enter in keywords to srtip, this will strip out everything! Spearate by a semi-colon',
+	  '#type' 					=> 'textarea', 
+	  '#default_value' 	=> variable_get('custom_enhancements_views_strip_keys_keys', "" ),
+    '#weight'         => 1,
+    '#group'          => 'views_strip_keys'
+	);
+  
+  $form['#pre_render'][] = 'vertical_tabs_form_pre_render'; //enabled vertical tabs if the module is installed
 	
   return system_settings_form($form);
 

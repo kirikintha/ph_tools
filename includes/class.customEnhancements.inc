@@ -15,6 +15,51 @@
  */
 
 class customEnhancements {
+  
+  /**
+   * @name _get_body_classes()
+   * There are a lot of conflisting classes added to the body of a Drupal page, this allows you to eliminate them
+   * @param string $vars['body_classes'] a string of system classes added from Drupal
+   * @return string a string of body classes to add to the <body> of the page
+   */
+  public static function _get_body_classes( $vars ) {
+    
+    $inputs = explode(' ', $vars['body_classes'] ); // Default classes
+    
+    $bodyClasses = array();
+    
+    //Add in the node-% before anything else, so that the node admin overrides anything else when we apply classes
+    
+    //Node Add Class
+    if ( arg(0) == 'node' && arg(1) == 'add' ) {
+      
+      $bodyClasses['node-add'] = 'node-add';
+      
+    }
+    
+    //Node Edit Class
+    if ( arg(0) == 'node' && is_numeric( arg(1) ) && arg(2) == 'edit' ) {
+      
+      $bodyClasses['node-edit'] = 'node-edit';
+      
+    }
+      
+    //Node Edit Class when editing node revisions
+    if ( arg(0) == 'node' && is_numeric( arg(1) ) && arg(2) == 'revisions' && is_numeric( arg(3) ) && arg(4) == 'edit' ) {
+      
+      $bodyClasses['node-edit'] = 'node-edit';
+      
+    }
+    
+    foreach ( $inputs as $input ) {
+      
+      $bodyClasses[$input] = check_plain( $input ); //turn the body classes into a keyed array so we can unset them if we want
+      
+    }
+    
+    return implode( ' ', $bodyClasses ); // Create class list separated by spaces
+    
+  }
 
 	/**
    * @name _strip_views_keys( $str )
@@ -491,7 +536,7 @@ class customEnhancements {
     return $countryArr;
     
   }
-	
+  
 	/**
    * @name _get_season( $to = 0 )
    * Get the season name, Winter, Autumn, Summer, Spring, Winter and it's date
@@ -532,62 +577,7 @@ class customEnhancements {
 }
 
 /**
- * @name ceAutocomplete
- * Adds Faster Autocomplete functionality
- * @todo Make this work for your own parameters, and test functionality
- * @version 0.1 BETA
- */
-class ceAutocomplete extends customEnhancements {
-	
-	public static function updateFastAutocomplete( $type = 'all' ) {
-		
-		$items 		= array();
-		$fileName = '';
-		
-		switch ( $type ) {
-			
-			case 'all':
-			default:
-			
-				$sql 			= "SELECT * FROM {search_index} WHERE `type` = 'node' GROUP BY `word` ASC LIMIT 0 , 5000"; //I just feel like limiting this right now
-				$fileName = 'search_all.js';
-			
-			break;
-			
-		}
-		
-		$rs = db_query( $sql );
-		
-		$output = '';
-		$output .= "var siteSearch = [\r\n";
-		
-		while ( $data = db_fetch_object( $rs ) ) {
-			
-			$output .= "\t\"" . t( trim( $data->word) ) ."\",\r\n";
-			
-		}
-
-		$output .= "]";
-		
-		//print_r($output);
-		//take the output and write that to a js file
-		$path = file_directory_path() .'/fast_autocomplete';
-		file_check_directory( $path, FILE_CREATE_DIRECTORY );
-		$deleted = file_delete($path.'/'.$fileName);
-		$success = file_save_data($output, $path.'/'.$fileName, FILE_EXISTS_REPLACE);
-		
-		if ( $success ) {
-			
-			watchdog( 'Custom Enhancements', t( 'Fast Autocomplete Search Finished' ) );
-			
-		}
-		
-	}
-	
-}
-
-/**
- * @name ceWidgets
+ * @name customEnhancementsWidgets
  */
 
 class customEnhancementsWidgets {
@@ -662,9 +652,12 @@ class customEnhancementsAdmin {
     //Drupal Functions
     drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/js/enhancements.drupal.functions.js','module','header');
   
-    //cookie
+    //cookie - this is a requirement
     drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/cookies/jquery.cookies.js','module','header');
     
+    //Hover intent - this is a requirement
+    drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/eventhover/jquery.event.hover.js','module','header');
+
     if ( variable_get( 'custom_enhancements_enable_jquery_cycle', '' ) == 1 ) { //enable cycle?
     
       drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/cycle/jquery.cycle.js','module','header');
@@ -682,6 +675,15 @@ class customEnhancementsAdmin {
     if ( variable_get( 'custom_enhancements_enable_jquery_maskedinput', '' ) == 1 ) { //enable masked input?
     
       drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/maskedinput/jquery.maskedinput.js','module','footer');
+      
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_shadowbox', '' ) == 1 ) { //enable shadowbox?
+    
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/shadowbox/shadowbox.js','module','header');
+      drupal_add_js( 'Shadowbox.init();','inline','header');
+
+      drupal_add_css( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/shadowbox/shadowbox.css', 'module', 'all', false);
       
     }
     
@@ -705,6 +707,21 @@ class customEnhancementsAdmin {
       $jsPNG = '$(document).ready(function(){$(document).pngFix();});';
       drupal_add_js($jsPNG,'inline','header');
     
+    }
+    
+    if ( variable_get( 'custom_enhancements_enable_jquery_niceforms', '' ) == 1 ) { //enable niceforms?
+      
+      $css = variable_get( 'custom_enhancements_enable_jquery_niceforms_css', CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/ynf/ynf.css' );
+      
+      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/jqtransform/jquery.jqtransform.js','module','header');
+      drupal_add_css( $css, 'module', 'all', false );
+      $jsNiceForms = '
+        $(document).ready(function(){
+          $("form").addClass( \'jqtransform\' ).jqTransform();
+        });
+      ';
+      drupal_add_js( $jsNiceForms,'inline','header' );
+      
     }
     
     //Miscellaneous Functions, should stay at the end

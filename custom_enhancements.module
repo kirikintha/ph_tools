@@ -23,6 +23,15 @@ include_once( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/includes/admin.customEnhancemen
  */
 function custom_enhancements_init() { //Load the relevent js
   
+  /**
+   * Error Reporting
+   *
+  error_reporting(E_ALL);
+  ini_set('display_errors', TRUE);
+  ini_set('display_startup_errors', TRUE);
+   */
+
+  
   customEnhancementsAdmin::_custom_enhancements_load_js();
   
 }
@@ -106,4 +115,11 @@ function custom_enhancements_preprocess_page( &$vars ) {
 		}
 	}
 	
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function custom_enhancements_form_alter($form_id, &$form) {
+
 }
