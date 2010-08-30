@@ -13,6 +13,7 @@ function custom_enhancements_install() {
   variable_set( 'custom_enhancements_enable_jquery_orbitaltooltip' , 0 );
   variable_set( 'custom_enhancements_enable_jquery_preloadimages' , 0 );
   variable_set( 'custom_enhancements_enable_jquery_pngfix' , 0 );
+  variable_set( 'custom_enhancements_enable_jquery_shadoxbox', 0 );
   
 }
 
@@ -27,15 +28,16 @@ function custom_enhancements_uninstall() {
   variable_del( 'custom_enhancements_enable_jquery_cycle');
   variable_del( 'custom_enhancements_enable_jquery_maskedinput');
   variable_del( 'custom_enhancements_enable_jquery_orbitaltooltip');
-  variable_del( 'custom_enhancements_enable_jquery_preloadimages' );
-  variable_del( 'custom_enhancements_enable_jquery_pngfix' );
+  variable_del( 'custom_enhancements_enable_jquery_preloadimages');
+  variable_del( 'custom_enhancements_enable_jquery_pngfix');
+  variable_del( 'custom_enhancements_enable_jquery_shadoxbox');
   
 }
 
 /**
  * Hook Requirements
  */
-function property_requirements( $phase ) {
+function custom_enhancements_requirements( $phase ) {
   
   $requirements = array();
   
@@ -64,7 +66,7 @@ function property_requirements( $phase ) {
 /**
  * Hook Enable
  */
-function property_enable() {
+function custom_enhancements_enable() {
   
   $output['!welcome'] = "You have successfully enabled the Custom Enhancements Module. Please look at the module documentation for more help in development, and please note that some of these features are in BETA.";
   
@@ -75,7 +77,7 @@ function property_enable() {
 /**
  * Hook Disable
  */
-function property_disable() {
+function custom_enhancements_disable() {
   
   $output['!goodbye'] = "Custom Enhancements Module sucessfully disabled.";
   

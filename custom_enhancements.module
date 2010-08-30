@@ -6,6 +6,14 @@
 * @version 1.0
 */
 
+/**
+ * Error Reporting
+ *
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
+ */  
+
 //Define Constants
 define( "CUSTOM_ENHANCEMENTS_MODULE_PATH", drupal_get_path( 'module', 'custom_enhancements' ) );
 
@@ -22,15 +30,6 @@ include_once( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/includes/admin.customEnhancemen
  * Hook Menu
  */
 function custom_enhancements_init() { //Load the relevent js
-  
-  /**
-   * Error Reporting
-   *
-  error_reporting(E_ALL);
-  ini_set('display_errors', TRUE);
-  ini_set('display_startup_errors', TRUE);
-   */
-
   
   customEnhancementsAdmin::_custom_enhancements_load_js();
   
