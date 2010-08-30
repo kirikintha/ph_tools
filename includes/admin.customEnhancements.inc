@@ -128,7 +128,7 @@ function _custom_enhancements_customize() {
 	  '#title' 					=> 'Enable or disable Shadowbox',
 	  '#description' 		=> '',
 	  '#type' 					=> 'radios', 
-	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_shadowbox', '') ? variable_get('custom_enhancements_enable_jquery_shadoxbox', '') : 0,
+	  '#default_value' 	=> variable_get('custom_enhancements_enable_jquery_shadowbox', '') ? variable_get('custom_enhancements_enable_jquery_shadowbox', '') : 0,
 	  '#options' 				=> $options,
     '#weight'         => 4,
     '#group'          => 'jquery_plugins'
