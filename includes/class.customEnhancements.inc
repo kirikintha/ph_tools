@@ -573,6 +573,34 @@ class customEnhancements {
 		}
 	
 	}
+  
+  /**
+   * @name _detectMobileDevice($ignoreAgents)
+   * Detect if a user agent is a mobile device or not. This uses the theory that we are not looking for desktop browsers, rather than looking for all mobile devices
+   * based on: http://smartmobtoolkit.wordpress.com/2008/10/16/not-device-detection
+   * @param array $ignoreUserAgents = an array of values to ignore in a user agent to ignore, such as the ipad
+   * @return bool true/false if a device is a mibile device or not
+   */
+  public static function _detectMobileDevice($ignoreAgents = array('ipad')) {
+    //Operating Systems we want to ignore
+    $os       = array( 'Windows', 'Macintosh', 'Linux', 'FreeBSD', 'Solaris' );
+    $crawlers = array( 'bot', 'slurp', 'spider', 'crawl' );
+    $ignore   = array_merge( $os, $crawlers );
+    //Turn the ignore array into a piped preg_match query
+    $ignore = implode('|', $ignore); 
+    //If we match anything on the ignore list, and do not have mobile in the user agent string, return false
+    if (preg_match('/('.$ignore.')/i', $_SERVER['HTTP_USER_AGENT'], $matches) && !strstr(strtoupper($_SERVER['HTTP_USER_AGENT']), 'MOBILE')) {
+      return false;
+    } else {
+      //If we do not match on the ignore list then we are presuming we are a mobile device, unless that mobile device is to be ignored
+      $ignoreAgents = implode('|', $ignoreAgents);
+      if (preg_match('/('.$ignoreAgents.')/i', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+        return false;
+      } else {
+        return true;
+      } 
+    }
+  }
 
 }
 
