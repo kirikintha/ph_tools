@@ -1,0 +1,92 @@
+<?php
+/**
+* @name Custom Enhancements Module
+* Provides a set of re-useable functions, helpers, re-useable arrays, javascript to Drupal 6's feature set
+* @author Paul T. Huntsberger courtesy of our friends at Blue Tent Marketing
+* @version 1.0
+*/
+//Define Constants
+define("PH_TOOLS_MODULE_PATH", drupal_get_path('module', 'ph_tools'));
+define("PH_TOOLS_MODULE_NAME", 'PHBalanced Tools');
+
+//Include Module Files
+include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.class.inc');
+include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.functions.inc');
+include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.admin.inc');
+
+/**
+ * Implementation of hook_init().
+ */
+function ph_tools_init() {
+  //Load the relevent js files when we hit the page.
+  phToolsAdmin::_ph_tools_load_js();
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function ph_tools_menu() {
+	$items = array();
+	$items['admin/settings/ph_tools'] = array(
+		'title'            => t('@name', array('@name' => INSTALL_MODULE_NAME)),
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('_ph_tools_main'),
+		'type'             => MENU_NORMAL_ITEM,
+		'access arguments' => array('administer site configuration'),
+	);
+	$items['admin/settings/ph_tools/main'] = array(
+		'path' 				     => 'admin/settings/ph_tools/main',
+		'title' 			     => t('Main Information'),
+		'type' 				     => MENU_DEFAULT_LOCAL_TASK,
+		'weight' 			     => -100,
+		'access arguments' => array('administer site configuration'),
+	);
+	$items['admin/settings/ph_tools/customize'] = array(
+		'title' 			     => t('Customize Tools'),
+		'page callback' 	 => 'drupal_get_form',
+		'page arguments' 	 => array('_ph_tools_customize'),
+		'type'				     => MENU_LOCAL_TASK,
+		'access arguments' => array('administer site configuration'),
+	);
+	return $items;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function ph_tools_theme() {
+	return array (
+		'weather_widget' => array (
+      'path'      => PH_TOOLS_MODULE_PATH,
+      'template'  => 'theme/weather_widget',
+			'arguments' => array('widget' => NULL),
+		)
+	);
+}
+
+/**
+ * Implementation of hook_user().
+ */
+function ph_tools_user($op, &$edit, &$account, $category = NULL) {
+	switch ($op) {
+		case 'load':
+		case 'update':
+			//If image cache user module exists, reacache the user image when the user loads their profile
+			if (function_exists('imagecache_image_flush')) {
+				imagecache_image_flush($account->picture);
+			}
+		break;
+	}
+}
+
+/**
+ * Implementation of preprocess_page().
+ */
+function ph_tools_preprocess_page(&$vars) {
+	//Remove personal files tab, if the imce module exists, and if there is not a permission level for uploading files
+	if (module_exists('imce') || module_exists('fckeditor')) {
+		if (!user_access('allow fckeditor file uploads') || !user_access('upload files')) {
+			$vars['tabs'] = preg_replace('/<li.*File browser<\/a><\/li>/', '', $vars['tabs']);
+		}
+	}
+}

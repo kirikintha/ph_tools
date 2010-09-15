@@ -1,5 +1,7 @@
 ##Summary
 
+PHBalanced Tools is a set of PHP functions, Javascript functions, re-useable CCK compatible arrays, a weather widget and javascript locator that allows you to resource commonly used components that are not native to Drupal.
+
 ##How It works
 
 ##Notes on Compatibility

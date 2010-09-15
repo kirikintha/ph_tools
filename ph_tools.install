@@ -1,0 +1,65 @@
+<?php
+/**
+ * Hook install
+ */
+
+define("INSTALL_MODULE_NAME", "PHBalanced Tools");
+
+function ph_tools_install() {
+  //Set variables.
+  variable_set('ph_tools_library', array());
+  variable_set('ph_tools_library_directory', 'sites/all/libraries');
+  variable_set('ph_tools_global_paths', "admin*\n");
+  //Check out the lirbraries directory. This is where we want our stuff to go.
+  file_check_directory(variable_get('ph_tools_library_directory', 'sites/all/libraries'), FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS );
+}
+
+/**
+ * Hook uninstall
+ */
+function ph_tools_uninstall() {
+  //Delete variables.
+  variable_del('ph_tools_library');
+  variable_del('ph_tools_library_directory');
+  variable_del('ph_tools_global_paths');
+}
+
+/**
+ * Hook Requirements
+ */
+function ph_tools_requirements($phase) {
+  $requirements = array();
+  //Switch between phases
+  switch ($phase) {
+    case 'install':
+    break;
+    case 'runtime':
+      //Report back that we have sucessfully installedout module in the system log
+      $requirements['ph_tools'] = array(
+        'title'       => t('@name', array('@name' => INSTALL_MODULE_NAME)),
+        'value'       => t('Runtime Requirements'),
+        'description' => t('Custom Enhancements has been successfully installed.'),
+        'severity'    => WATCHDOG_OK
+      );
+      break;
+  }
+  return $requirements; 
+}
+
+/**
+ * Hook Enable
+ */
+function ph_tools_enable() {
+  //Set a friendly message when install or enable.
+  $MSG = t("You have successfully enabled the @name Module. Please look at the module documentation for more help in development, and please note that some of these features are in BETA.", array('@name' => INSTALL_MODULE_NAME));  
+  drupal_set_message($MSG);
+}
+
+/**
+ * Hook Disable
+ */
+function ph_tools_disable() {
+  //Set a friendly message when install or enable.
+  $MSG = t("You have successfully diabled the @name Module.", array('@name' => INSTALL_MODULE_NAME));  
+  drupal_set_message($MSG);
+}
