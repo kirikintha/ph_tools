@@ -9,7 +9,7 @@
 define("PH_TOOLS_MODULE_PATH", drupal_get_path('module', 'ph_tools'));
 define("PH_TOOLS_MODULE_NAME", 'PHBalanced Tools');
 //Whitelist of acceptable files, so it is harder to get in bad files
-define("PH_TOOLS_MODULE_WHITELIST", 'orbitaltooltip.js|jquery.jcarousel.min.js|jquery.cookies.js|jquery.cycle.lite.min.js|jquery.cycle.min.js|jquery.maskedinput-1.2.2.js');
+define("PH_TOOLS_MODULE_WHITELIST", 'orbitaltooltip.js|jquery.jcarousel.min.js|jquery.cookies.js|jquery.cycle.lite.min.js|jquery.cycle.min.js|jquery.maskedinput-1.2.2.js|shadowbox.js');
 
 //Include Module Files
 include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.class.inc');
