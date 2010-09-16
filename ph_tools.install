@@ -10,6 +10,7 @@ function ph_tools_install() {
   variable_set('ph_tools_library', array());
   variable_set('ph_tools_library_directory', 'sites/all/libraries');
   variable_set('ph_tools_global_paths', "admin*\n");
+  variable_set('ph_tools_classes_to_fade', "status\nwarning" );
   //Check out the lirbraries directory. This is where we want our stuff to go.
   file_check_directory(variable_get('ph_tools_library_directory', 'sites/all/libraries'), FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS );
 }
@@ -22,6 +23,7 @@ function ph_tools_uninstall() {
   variable_del('ph_tools_library');
   variable_del('ph_tools_library_directory');
   variable_del('ph_tools_global_paths');
+  variable_del('ph_tools_classes_to_fade');
 }
 
 /**
@@ -51,7 +53,7 @@ function ph_tools_requirements($phase) {
  */
 function ph_tools_enable() {
   //Set a friendly message when install or enable.
-  $MSG = t("You have successfully enabled the @name Module. Please look at the module documentation for more help in development, and please note that some of these features are in BETA.", array('@name' => INSTALL_MODULE_NAME));  
+  $MSG = t("You have successfully enabled the @name Module. Please look at the module documentation for more help in development.", array('@name' => INSTALL_MODULE_NAME));  
   drupal_set_message($MSG);
 }
 

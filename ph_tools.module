@@ -8,6 +8,8 @@
 //Define Constants
 define("PH_TOOLS_MODULE_PATH", drupal_get_path('module', 'ph_tools'));
 define("PH_TOOLS_MODULE_NAME", 'PHBalanced Tools');
+//Whitelist of acceptable files, so it is harder to get in bad files
+define("PH_TOOLS_MODULE_WHITELIST", 'orbitaltooltip.js|jquery.jcarousel.min.js|jquery.cookies.js|jquery.cycle.lite.min.js|jquery.cycle.min.js|jquery.maskedinput-1.2.2.js');
 
 //Include Module Files
 include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.class.inc');
@@ -28,7 +30,7 @@ function ph_tools_init() {
 function ph_tools_menu() {
 	$items = array();
 	$items['admin/settings/ph_tools'] = array(
-		'title'            => t('@name', array('@name' => INSTALL_MODULE_NAME)),
+		'title'            => t('@name', array('@name' => PH_TOOLS_MODULE_NAME)),
 		'page callback'    => 'drupal_get_form',
 		'page arguments'   => array('_ph_tools_main'),
 		'type'             => MENU_NORMAL_ITEM,
@@ -89,4 +91,5 @@ function ph_tools_preprocess_page(&$vars) {
 			$vars['tabs'] = preg_replace('/<li.*File browser<\/a><\/li>/', '', $vars['tabs']);
 		}
 	}
+  $vars['body_classes'] = phTools::_get_body_classes($vars);
 }

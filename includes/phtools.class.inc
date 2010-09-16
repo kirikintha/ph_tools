@@ -6,12 +6,12 @@
  * @static _set_header_nocache()
  * @static _browser_check()
  * @static _list_months()
- * @static _list_years( $startDate, $endDate )
+ * @static _list_years($startDate, $endDate)
  * @static _list_canadian_provinces()
  * @static _list_us_states()
  * @static _list_countries_iso()
  * @static _list_countries_iso_cck()
- * @static _get_season( $to = 0 )
+ * @static _get_season($to = 0)
  */
 
 class phTools {
@@ -22,67 +22,45 @@ class phTools {
    * @param string $vars['body_classes'] a string of system classes added from Drupal
    * @return string a string of body classes to add to the <body> of the page
    */
-  public static function _get_body_classes( $vars ) {
-    
-    $inputs = explode(' ', $vars['body_classes'] ); // Default classes
-    
+  public static function _get_body_classes($vars) {
+    $inputs = explode(' ', $vars['body_classes']); // Default classes
     $bodyClasses = array();
-    
     //Add in the node-% before anything else, so that the node admin overrides anything else when we apply classes
-    
     //Node Add Class
-    if ( arg(0) == 'node' && arg(1) == 'add' ) {
-      
+    if (arg(0) == 'node' && arg(1) == 'add') {
       $bodyClasses['node-add'] = 'node-add';
-      
     }
     
     //Node Edit Class
-    if ( arg(0) == 'node' && is_numeric( arg(1) ) && arg(2) == 'edit' ) {
-      
+    if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
       $bodyClasses['node-edit'] = 'node-edit';
-      
     }
-      
     //Node Edit Class when editing node revisions
-    if ( arg(0) == 'node' && is_numeric( arg(1) ) && arg(2) == 'revisions' && is_numeric( arg(3) ) && arg(4) == 'edit' ) {
-      
+    if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'revisions' && is_numeric(arg(3)) && arg(4) == 'edit') {
       $bodyClasses['node-edit'] = 'node-edit';
-      
     }
-    
-    foreach ( $inputs as $input ) {
-      
-      $bodyClasses[$input] = check_plain( $input ); //turn the body classes into a keyed array so we can unset them if we want
-      
+     //turn the body classes into a keyed array so we can unset them if we want them.
+    foreach ($inputs as $input) {
+      $bodyClasses[$input] = check_plain($input);
     }
-    
-    return implode( ' ', $bodyClasses ); // Create class list separated by spaces
-    
+    return implode(' ', $bodyClasses); // Create class list separated by spaces
   }
 
 	/**
-   * @name _strip_views_keys( $str )
+   * @name _strip_views_keys($str)
    * Strips out repetetive views keys from views array keys, helpful when trying to cut down the lengths of very long views array keys
+   * @internal - marked for deletion, but this is sometimes nice to have.
    */
-	public static function _strip_views_keys( $str ) {
-		
-		$keywords = explode( ";", variable_get( 'ph_tools_views_strip_keys_keys', '' ) );
-		
+	public static function _strip_views_keys($str) {
+		$keywords = explode(";", variable_get('ph_tools_views_strip_keys_keys', ''));
 		$mixedSearch 	= array();
 		$mixedReplace = array();
-		
-		foreach ( $keywords as $key => $value ) {
-			
+		foreach ($keywords as $key => $value) {
 			$mixedSearch[] 	= $value;
 			$mixedReplace[] = '';
-			
 		}
-		
-		$str = str_replace( $mixedSearch, $mixedReplace, $str );
-		
+		$str = str_replace($mixedSearch, $mixedReplace, $str);
 		return $str;
-	
 	}
 	
   /**
@@ -90,13 +68,11 @@ class phTools {
    * Set browser not to cache AJAX return results.
    */
 	public static function _set_header_nocache() {
-		
 		header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 		header("Cache-Control: no-store, no-cache, must-revalidate");
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Pragma: no-cache");
-		
 	}
 	
 	/**
@@ -104,7 +80,6 @@ class phTools {
    * @return an array $browser with the keys: $browser['version'] && $browser['type']
    */
 	public static function _browser_check() {
-		
 		$useragent = $_SERVER['HTTP_USER_AGENT'];
 		if (preg_match('|MSIE ([0-9].[0-9]{1,2})|',$useragent,$matched)) {
 			$browser['version'] =$matched[1];
@@ -127,9 +102,7 @@ class phTools {
 			$browser['version']  = 0;
 			$browser['type']= 'other';
 		}
-		
 		return $browser;
-	
 	}
 	
 	/**
@@ -137,7 +110,6 @@ class phTools {
    * @return array of all months listed in the Julian Calendar
    */
 	public static function _list_months() {
-		
 		return array(
 			'01' 	=> 'January (01)',
 			'02' 	=> 'February (02)',
@@ -152,23 +124,21 @@ class phTools {
 			'11' 	=> 'November (11)',
 			'12' 	=> 'December (12)',
 		);
-	
 	}
 		
 	/**
-   * @name _list_years( $startDate, $endDate )
+   * @name _list_years($startDate, $endDate)
 	 * List all Years in the form of yyyy in between the start date and end date you supply.
 	 * Start Date must be a date earlier than the end date
 	 * @param $startDate
 	 * @param $endDate
 	 * @return array $years[YYYY] = YYYY
 	 */
-	public static function _list_years( $startDate, $endDate ) {
-		
+	public static function _list_years($startDate, $endDate) {
 		$years = array();
 		$count = $endDate - $startDate;
 		$i = 0;
-		if ( $startDate < $endDate ) {
+		if ($startDate < $endDate) {
 			while ($i <= $count) {
 				$newYear = $startDate + $i;
 				$years[$newYear] = $newYear;
@@ -178,7 +148,6 @@ class phTools {
 		} else {
 			return;
 		}
-		
 	}
 	
 	/**
@@ -186,7 +155,6 @@ class phTools {
 	 * @return array a list of Canadian Provinces that CCK can understand
 	 */
 	public static function _list_canadian_provinces() {
-		
 		return array(
 			'AB'=>'Alberta',
 			'BC'=>'British Columbia',
@@ -203,7 +171,6 @@ class phTools {
 			'SK'=>'Saskatchewan',
 			'YT'=>'Yukon'
 		);
-	
 	}
 	
 	/**
@@ -211,7 +178,6 @@ class phTools {
 	 * @return array a list of US states that CCK fields can easily understand
 	 */
 	public static function _list_us_states() {
-		
 		return array(
 			'AL'=>'Alabama',
 			'AK'=>'Alaska',
@@ -263,8 +229,8 @@ class phTools {
 			'WA'=>'Washington',
 			'WV'=>'West Virginia',
 			'WI'=>'Wisconsin',
-			'WY'=>'Wyoming');
-		
+			'WY'=>'Wyoming',
+    );
 	}
 	
   /**
@@ -273,7 +239,6 @@ class phTools {
    * @return array of countries, with the keys: upper lower alpha3 numeric
    */
 	public static function _list_countries_iso() {
-
 		return array(
 			'AF' => array('upper'=>'AFGHANISTAN','lower'=>'Afghanistan','alpha3'=>'AFG','numeric'=>'004'),
 			'AL' => array('upper'=>'ALBANIA','lower'=>'Albania','alpha3'=>'ALB','numeric'=>'008'),
@@ -514,8 +479,7 @@ class phTools {
 			'YE' => array('upper'=>'YEMEN','lower'=>'Yemen','alpha3'=>'YEM','numeric'=>'887'),
 			'ZM' => array('upper'=>'ZAMBIA','lower'=>'Zambia','alpha3'=>'ZMB','numeric'=>'894'),
 			'ZW' => array('upper'=>'ZIMBABWE','lower'=>'Zimbabwe','alpha3'=>'ZWE','numeric'=>'716')
-			);
-
+		);
 	}
   
   /**
@@ -523,55 +487,35 @@ class phTools {
    * @return array a list of countries that CCK fields can easily understand
    */
   public static function _list_countries_iso_cck() {
-    
     $countries  = phTools::_list_countries_iso();
-    $countryArr = array( 'NULL' => '- None -' );
-    
-    foreach ( $countries as $key => $value ) {
-    
+    $countryArr = array('NULL' => '- None -');
+    foreach ($countries as $key => $value) {
       $countryArr[$key] = $value['lower'];
-
     }
-    
     return $countryArr;
-    
   }
   
 	/**
-   * @name _get_season( $to = 0 )
+   * @name _get_season($to = 0)
    * Get the season name, Winter, Autumn, Summer, Spring, Winter and it's date
    * @param integer $to a value in the future for the season you wish to select
    * @return array $season['name'] $season['date']
    */
-	public static function _get_season( $to = 0 ) {
-		
-		if ( is_numeric( $to ) ) {
-	
-			$seasonDates = array( '/12/21'=>'Winter', '/09/21'=>'Autumn', '/06/21'=>'Summer', '/03/21'=>'Spring', '/01/01'=>'Winter' );
-			
+	public static function _get_season($to = 0) {
+		if (is_numeric($to)) {
+			$seasonDates = array('/12/21'=>'Winter', '/09/21'=>'Autumn', '/06/21'=>'Summer', '/03/21'=>'Spring', '/01/01'=>'Winter');
 			$season = array();
-			
-			foreach ( $seasonDates as $key => $value ) {
-			
-				$seasonDate = date( "Y", strtotime( "now + $to days" ) ) .$key;
-				
-				if ( strtotime( "now + $to days" ) > strtotime( $seasonDate ) ) {
-				
+			foreach ($seasonDates as $key => $value) {
+				$seasonDate = date("Y", strtotime("now + $to days")) .$key;
+				if (strtotime("now + $to days") > strtotime($seasonDate)) {
 					$season['name'] = $value;
 					$season['date'] = $key;
-					
 					return $season;
-				
 				}
-			
 			}
-		
 		} else {
-			
-			drupal_set_message( 'You must use a numeric value for the variable $to _getSeason( $to ), please look at this public static function and enter in a numeric value.', 'error' );
-			
+			drupal_set_message('You must use a numeric value for the variable $to _getSeason($to), please look at this public static function and enter in a numeric value.', 'error');
 		}
-	
 	}
   
   /**
@@ -583,9 +527,9 @@ class phTools {
    */
   public static function _detectMobileDevice($ignoreAgents = array('ipad')) {
     //Operating Systems we want to ignore
-    $os       = array( 'Windows', 'Macintosh', 'Linux', 'FreeBSD', 'Solaris' );
-    $crawlers = array( 'bot', 'slurp', 'spider', 'crawl' );
-    $ignore   = array_merge( $os, $crawlers );
+    $os       = array('Windows', 'Macintosh', 'Linux', 'FreeBSD', 'Solaris');
+    $crawlers = array('bot', 'slurp', 'spider', 'crawl');
+    $ignore   = array_merge($os, $crawlers);
     //Turn the ignore array into a piped preg_match query
     $ignore = implode('|', $ignore); 
     //If we match anything on the ignore list, and do not have mobile in the user agent string, return false
@@ -611,7 +555,7 @@ class phTools {
 class phToolsWidgets {
   
   /**
-    * @name _get_weather_widget( $url )
+    * @name _get_weather_widget($url)
     * returns a weather widget from NOAA's XML
     * @param string $url a valid url for creating the widget
     * @return html of the weather widget from the $widget array
@@ -627,28 +571,28 @@ class phToolsWidgets {
     * $widget->observation_time
     * $widget->credit
   */
-  public static function _get_weather_widget( $url ) {
+  public static function _get_weather_widget($url) {
     
-    if ( !empty( $url ) && strstr( $url, 'http://www.weather.gov/xml/current_obs' ) ) { //check to see if the url is valid
+    if (!empty($url) && strstr($url, 'http://www.weather.gov/xml/current_obs')) { //check to see if the url is valid
       
-      $url = $url . '?nocache=' .md5( time() ); //make sure the xml does not cache
-      $xml = simplexml_load_file ( $url );
+      $url = $url . '?nocache=' .md5(time()); //make sure the xml does not cache
+      $xml = simplexml_load_file ($url);
       
-      //print_r( $xml );
+      //print_r($xml);
       
       $widget = new stdClass;
       
-      foreach ( $xml as $key => $value ) {
+      foreach ($xml as $key => $value) {
         
-        $widget->$key = (string) trim( $value );
+        $widget->$key = (string) trim($value);
         
       }
       
-      return theme( 'weather_widget', $widget );
+      return theme('weather_widget', $widget);
       
     } else {
       
-      drupal_set_message( t( 'You have not entered in a valid url, please enter in a url destination from http://www.weather.gov/xml/current_obs' ), 'error' );
+      drupal_set_message(t('You have not entered in a valid url, please enter in a url destination from http://www.weather.gov/xml/current_obs'), 'error');
       
     }
     
@@ -666,9 +610,47 @@ class phToolsAdmin {
    * Check the path you have given for jquery libraries
    */
   public static function _checkLibrary() {
-    if ($files = file_scan_directory(variable_get('ph_tools_library_directory', NULL))) {
-      krumo($files);
+    $files = file_scan_directory(variable_get('ph_tools_library_directory', NULL), variable_get('ph_tools_library_whitelist', PH_TOOLS_MODULE_WHITELIST), $nomask = array('.', '..', 'jquery.js', 'CVS', 'fckeditor', 'tinymce'));
+    $form  = array();
+    if (!empty($files)) {
+      //If we find jquery libraries here, then allow them as settings parameters. We want to ignore directories with fck or tiny because those are reserved for the wysiwyg module.
+      foreach ($files as $key => $file) {
+        $options = array(
+         0               => 'DISABLE',
+         $file->filename => 'ENABLE',
+       );
+        $form['ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name)] = array(
+          '#title' 				 => t('Enable or Disable @name', array('@name' => $file->name)),
+          '#description' 	 => t('This file is located at: @dir', array('@dir' => $file->filename)),
+          '#type' 				 => 'radios', 
+          '#default_value' => variable_get('ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name), 0),
+          '#options' 			 => $options,
+          '#weight'        => 0,
+          '#group'         => 'jquery_plugins',
+          '#prefix'        => '<hr />',
+       );
+        //Allows us to set the scope if we are enabled
+        $scope = array('header' => t('Header'), 'footer' => t('Footer'));
+        $form['ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name)]['ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name) .'_scope'] = array(
+          '#title' 				 => t('Scope'),
+          '#description' 	 => t('Set the Scope for this script for the header or the footer of the page.'),
+          '#type' 				 => 'radios', 
+          '#default_value' => variable_get('ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name) .'_scope', 'header'),
+          '#options' 			 => $scope,
+          '#weight'        => 9,
+          '#group'         => 'jquery_plugins',
+       );
+        $form['ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name)]['ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name) .'_paths'] = array(
+          '#title' 				 => t('Paths to exclude this script from.'),
+          '#description' 	 => t('Set the pages in which you do not wish to have this script run.'),
+          '#type' 				 => 'textarea', 
+          '#default_value' => variable_get('ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name) .'_paths', variable_get('ph_tools_global_paths', "admin*\n")),
+          '#weight'        => 10,
+          '#group'         => 'jquery_plugins',
+       );
+      }
     }
+    return $form;
   }
   
   /**
@@ -678,16 +660,15 @@ class phToolsAdmin {
    */
   public static function _check_path($paths = NULL) {
     if ($paths != NULL) {
-      $paths 	= explode("\n", variable_get($paths, NULL));
       $path 	= drupal_get_path_alias($_GET['q']);
       $regexp = '/^('. preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1'. preg_quote(variable_get('site_frontpage', 'node'), '/') .'\2'), preg_quote($paths, '/')) .')$/';
       $found 	= preg_match($regexp, $path);
-      if ($found != 1) {
-        return TRUE;
+      if ($found == 1) {
+        return FALSE;
       }
     }
     //Else we have a match, then we can invoke our caller.
-    return FALSE;
+    return TRUE;
   }
   
   /**
@@ -696,35 +677,44 @@ class phToolsAdmin {
    */
   public static function _ph_tools_load_js() {
     //Global settings, this is for the main settings of the module.
-    if (self::_check_path('ph_tools_global_paths')) {
+    if (self::_check_path(variable_get('ph_tools_global_paths',''))) {
       //Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.settings.
-      drupal_add_js( array( 'drupal_get_destination' => drupal_get_destination() ), 'setting' );
+      drupal_add_js(array('drupal_get_destination' => drupal_get_destination()), 'setting');
       //Add Path To Theme setting, so you can get the path to theme.
       $current_theme  = variable_get('theme_default','none');
       $themes         = list_themes();
       $theme_object   = $themes[$current_theme];
-      drupal_add_js( array( 'drupal_get_path_to_theme' => drupal_get_path( 'theme', $theme_object->name ) ), 'setting' );
+      drupal_add_js(array('drupal_get_path_to_theme' => drupal_get_path('theme', $theme_object->name)), 'setting');
       //Extended Drupal JS functions, under the Drupal.PHtools.%function
-      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/js/enhancements.drupal.functions.js','module','header');
-      //Cookies, enable cookies on this site for all pages
-      drupal_add_js( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/cookies/jquery.cookies.js','module','header');
+      drupal_add_js(PH_TOOLS_MODULE_PATH. '/js/phtools.drupal.functions.js','module','header');
+      //Add Fade Functionality.
+      self::_message_can_fade();
     }
-    
     //Loop through each library setting and add the file information if we have a valid page.
     $settings = variable_get('ph_tools_library', array());
     if (!empty($settings)) {
       foreach ($settings as $key => $setting) {
-        //If we can be on this path, then add the setting
-        if (self::_check_path($settings['paths'])) {
-          if (isset($settings['script'])) {
-            drupal_add_js($settings['script'], $setting['type'], $setting['scope']);
-          } else if (isset($settings['css'])) {
-            drupal_add_css( CUSTOM_ENHANCEMENTS_MODULE_PATH. '/jquery_plugins/shadowbox/shadowbox.css', 'module', 'all', FALSE);
-          }
+        if (self::_check_path($setting['paths'])) {
+          drupal_add_js($setting['script'], 'module', $setting['scope']);
         }
       }
     }
-    
+  }
+  
+  /**
+   * @name _message_can_fade()
+   * Find out if the path given is valid for fading out messagess.
+   */
+  public static function _message_can_fade() {
+    //Check to see if the message can fade, then rock it out.
+    if (variable_get('phtools_fade_messages_override', 0) == 1) {
+      //Settings for fade out delay.
+      $settings['ph_tools_fade_out_delay'] = variable_get('ph_tools_fade_out_delay',5500);
+      //Add these to Drupal.settings
+      drupal_add_js($settings, 'setting');
+      drupal_add_js('$(document).ready(function() { Drupal.PHTools.canFade(); });', 'inline', 'footer');
+    }
+      
   }
 
 }

@@ -170,16 +170,12 @@ if (Drupal.jsEnabled) {
    */
   Drupal.PHTools.canFade = function () {
     //Get the fading classes, and apply those fade-outs at load time.
-    var classes = Drupal.settings.classesToFade;
-    var fade    = Drupal.settings.classesFadeTime;
-    for (var i=0; i < classes.length; i++) {
-      var value = classes[i];
-      setTimeout(function(){
-            //Set the timeout for our classes
-        $(value).fadeOut();
-      });
-    }
+    setTimeout(function(){
+      //Set the timeout for our classes.
+      $('.status, .warning').fadeOut();
+    },Drupal.settings.ph_tools_fade_out_delay);
   }
+  
   /**
    * @name Drupal.PHTools.browserDetect
    * Let's us detect a browser via javascript.
@@ -304,7 +300,8 @@ if (Drupal.jsEnabled) {
       ]
     
     };
-    return BrowserDetect.init();
+    BrowserDetect.init();
+    return BrowserDetect;
   }
 	
 	/**

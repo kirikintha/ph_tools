@@ -53,6 +53,8 @@ function _ph_tools_main() {
 
 //Customizeable Elements
 function _ph_tools_customize() {
+  //Options, for enable and disable
+  $options = array('DISABLE','ENABLE');
 	//Main settings
 	$form['main_settings'] = array(
 		'#type' 				=> 'fieldset',
@@ -62,20 +64,82 @@ function _ph_tools_customize() {
 		'#weight'				=> -100,
     '#group'        => 'main_settings',
 	);
-  $form['main_settings']['ph_tools_library_directory'] = array(
-    '#type'          => 'textarea',
-    '#default_value' => variable_get('ph_tools_library_directory', NULL),
-    '#weight'				 => -100,
-    '#group'         => 'main_settings',
-  );
   $form['main_settings']['ph_tools_global_paths'] = array(
     '#type'          => 'textarea',
-    '#default_value' => variable_set('ph_tools_global_paths', "admin*\n"),
+    '#title' 				 => t('Global path settings'),
+    '#description' 	 => t('You can set which pages not to have the extended Drupal.PHTools scripts run. Defaults to all admin pages.'),
+    '#default_value' => variable_get('ph_tools_global_paths', "admin*\n"),
     '#weight'				 => -100,
     '#group'         => 'main_settings',
   );
-  //krumo(phToolsAdmin::_checkLibrary());
+  //Fade classes - This is primarily used for fading drupal_set_message messages, but can be used creatively for sure.
+	$form['main_settings']['phtools_fade_messages_override'] = array(
+	  '#title' 					=> 'Enable or disable fading of messages',
+	  '#description' 		=> t('Drupal status, warning and error messages stick to the page. This allows you to set which messages fade, and on which urls.'),
+	  '#type' 					=> 'radios', 
+	  '#default_value' 	=> variable_get('phtools_fade_messages_override', 0),
+	  '#options' 				=> $options,
+    '#weight'         => 1,
+    '#group'          => 'main_settings'
+	);
+	$form['main_settings']['ph_tools_fade_out_delay'] = array(
+	  '#title' 					=> 'Timeout before fade happens',
+	  '#description' 		=> 'Enter the timeout value, in miliseconds before the timeout fires the fade out',
+	  '#type' 					=> 'textfield', 
+	  '#default_value' 	=> variable_get('ph_tools_fade_out_delay',5500),
+    '#weight'         => 3,
+    '#group'          => 'main_settings'
+	);
+  //Check the library information and set the current libraries.
+	$form['jquery_libraries'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Jquery Libraries'),
+		'#collapsible' 	=> FALSE,
+		'#collapsed' 		=> FALSE,
+		'#weight'				=> -99,
+    '#group'        => 'jquery_libraries',
+	);
+  $form['jquery_libraries']['ph_tools_library_directory'] = array(
+    '#type'          => 'textfield',
+    '#title' 				 => t('Directory Path for Jquery Libraries'),
+    '#description' 	 => t('This defaults to sites/all/libraries and you may change this, if you do it will rescan the directories for your jquery libraries.'),
+    '#default_value' => variable_get('ph_tools_library_directory', NULL),
+    '#required'      => TRUE,
+    '#weight'				 => -100,
+    '#group'         => 'jquery_libraries',
+  );
+  $form['jquery_libraries']['ph_tools_library_whitelist'] = array(
+    '#type'          => 'textfield',
+    '#title' 				 => t('Library Whitelist'),
+    '#description' 	 => t('You can add or take away which files this module "sees". You can add another entry using the form %entry| separating with a pipe. No spaces are allowed.'),
+    '#default_value' => variable_get('ph_tools_library_whitelist', PH_TOOLS_MODULE_WHITELIST),
+    '#maxlength'     => 1000,
+    '#required'      => TRUE,
+    '#weight'				 => -100,
+    '#group'         => 'jquery_libraries',
+  );
+  $form['jquery_libraries']['libraries'] = phToolsAdmin::_checkLibrary();
+  //Add our own validate handler.
+  $form['#validate'][]   = '_ph_tools_customize_validate';
   //Render vertical tabs.
   $form['#pre_render'][] = 'vertical_tabs_form_pre_render'; //enabled vertical tabs if the module is installed
   return system_settings_form($form);
+}
+
+//Validate the form we submitted.
+function _ph_tools_customize_validate($form_id, &$form_state) {
+  //Make sure our white list strips out spaces at the very least. @todo Make this reconize files existing.
+  $form_state['values']['ph_tools_library_whitelist'] = str_replace(' ','',$form_state['values']['ph_tools_library_whitelist']);
+  //Update our library settings, so we can just get them quikly and go.
+  $settings = array();
+  foreach ($form_state['values'] as $key => $value) {
+    if (strstr($key,'ph_tools_enable_') && file_exists($value)) {
+      $settings[] = array(
+        'script' => $value,
+        'paths'  => $form_state['values'][$key .'_paths'],
+        'scope'  => $form_state['values'][$key .'_scope'],
+      );
+    }
+  }
+  variable_set('ph_tools_library', $settings);
 }
