@@ -13,7 +13,16 @@ function _ph_tools_main() {
 		'ctype_alpha - if the ctype_alpha function does not exist in your php install, this corrects the problem.',
 		'ctype_digit - if the ctype_digit function does not exist in your php install, this corrects the problem.',
 	);
-	$output .= theme('item_list',$items,'PHP Functions','ul');
+	$output = theme('item_list',$items,'PHP Functions','ul');
+	$form['help_functions'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('PHP Functions'),
+		'#collapsible' 	=> FALSE,
+		'#collapsed' 		=> FALSE,
+    '#value'        => $output,
+    '#weight'       => -100,
+    '#group'        => 'functions',
+	);
 	//Class Functions
 	$items = array(
 		'phTools::_strip_views_keys( $str ) - this removes many of the common keys that make for long views lines. Use this to trim your views into manageable pieces.',
@@ -26,28 +35,42 @@ function _ph_tools_main() {
 		'phTools::_list_canadian_provinces() - returns current Canadian Provinces as of 2009. This array is compatible with CCK, just return the value from this array.',
     'phTools::_get_season( $to ) - returns an array (\'name\',\'date\') and allows you to get the current season ex: phTools::_get_season() or a season in the future phTools::_get_season( 180 )'
 	);
-	$output .= theme('item_list',$items,'coreEnhancements class static functions','ul');
-	//Drupal.js
+	$output = theme('item_list',$items,'PHTools static functions','ul');
+	$form['help_classes'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Static Module Helper Functions'),
+		'#collapsible' 	=> FALSE,
+		'#collapsed' 		=> FALSE,
+    '#value'        => $output,
+    '#weight'       => -99,
+    '#group'        => 'classes',
+	);
+	//Drupal.PHTools.js
 	$items = array(
 		'Browser Detect - accessible on any js enabled page, can access the * BrowserDetect.browser * BrowserDetect.version * BrowserDetect.OS objects, very handy in detecting browsers! From: http://www.quirksmode.org/js/detect.html',
-		'Drupal.trace( string ) - sends a string to the browsers console window, like firebug. Since console.log will fail your application in IE, this allows you to safely output to your browsers console.',
-		'Drupal.l(  title, ref, attr, destination, id  ) - Emulates the l() function in Drupal along with an id tag and destination. Attributes are rel, classes, alt',
-		'Drupal.serialize( data, prefix ) - outputs serialized data into a uriendcoded serialized array, useful for posting data back to drupal',
-		'Drupal.urlDecode( encodedString ) - emulates PHP\'s urldecode function',
-		'Drupal.saveCookie( name, data, discontinues, domain ) - allows you to save a cookie properly in your browser',
-		'Drupal.deleteCookie( name ) - deletes a cookie properly from the system',
-		'Drupal.scollTo( target ) - scrolls the browser window to a specific point, much like using anchor tags',
-		'Drupal.validateForm( formTarget, pageTarget, showSubmit ) - check a specific div that contains a form to check the fields for unfilled required fields. Also, this will find any email addresses and validate those as well.',
-		'Drupal.theme( \'progress\', target, j, total, startMessage, endMessage ) - allows you to create multiple progress bars on one page, emulates theme(\'progress\')',
-		'Drupal.settings.drupal_get_destination - returns the current destination from the function drupal_get_destination()'
+		'Drupal.PHTools.trace( string ) - sends a string to the browsers console window, like firebug. Since console.log will fail your application in IE, this allows you to safely output to your browsers console.',
+		'Drupal.PHTools.l(  title, ref, attr, destination, id  ) - Emulates the l() function in Drupal along with an id tag and destination. Attributes are rel, classes, alt',
+		'Drupal.PHTools.serialize( data, prefix ) - outputs serialized data into a uriendcoded serialized array, useful for posting data back to drupal',
+		'Drupal.PHTools.urlDecode( encodedString ) - emulates PHP\'s urldecode function',
+		'Drupal.PHTools.saveCookie( name, data, discontinues, domain ) - allows you to save a cookie properly in your browser',
+		'Drupal.PHTools.deleteCookie( name ) - deletes a cookie properly from the system',
+		'Drupal.PHTools.scollTo( target ) - scrolls the browser window to a specific point, much like using anchor tags',
+		'Drupal.PHTools.validateForm( formTarget, pageTarget, showSubmit ) - check a specific div that contains a form to check the fields for unfilled required fields. Also, this will find any email addresses and validate those as well.',
+		'Drupal.PHTools.theme( \'progress\', target, j, total, startMessage, endMessage ) - allows you to create multiple progress bars on one page, emulates theme(\'progress\')',
+		'Drupal.PHTools.settings.drupal_get_destination - returns the current destination from the function drupal_get_destination()'
 	);
-	$output .= theme('item_list',$items,'Drupal.js javascript accessible functions','ul');
-	//Output everything to the markup field
-	$form['main'] = array(
-    '#type'   => 'markup',
-    '#value'  => $output,
-    '#weight' => 0,
+	$output = theme('item_list',$items,'Drupal.PHTools.js javascript accessible functions','ul');
+	$form['help_javscript'] = array(
+		'#type' 				=> 'fieldset',
+		'#title' 				=> t('Javascript Helper Functions'),
+		'#collapsible' 	=> FALSE,
+		'#collapsed' 		=> FALSE,
+    '#value'        => $output,
+    '#weight'       => -98,
+    '#group'        => 'javascript',
 	);
+  //Render vertical tabs.
+  $form['#pre_render'][] = 'vertical_tabs_form_pre_render'; //enabled vertical tabs if the module is installed
 	return $form;
 }
 
