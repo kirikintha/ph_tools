@@ -78,7 +78,7 @@ if (Drupal.jsEnabled) {
 	Drupal.PHTools.saveCookie = function (name, data, discontinues, domain) {
 		if (name == null || name == undefined) { return false; }
 		if (data == null || data == undefined) { return false; }
-		if (discontinues == null || discontinues == undefined) { discontunies = 0; }
+		if (discontinues == null || discontinues == undefined) { discontinues = 0; }
 		if (domain == null || domain == undefined) { domain = '/'; }
 		Drupal.PHTools.deleteCookie(name); //delete the cookie so we know we always have a fresh cookie.
 		$.cookie(name, data, {
