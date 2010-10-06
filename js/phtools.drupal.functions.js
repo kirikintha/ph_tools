@@ -184,7 +184,7 @@ if (Drupal.jsEnabled) {
    * BrowserDetect.version
    * BrowserDetect.OS
    */
-  Drupal.PHTools.broswerDetect = function () {
+  Drupal.PHTools.browserDetect = function () {
     var BrowserDetect = {
       init: function () {
         this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
