@@ -22,16 +22,59 @@ if (Drupal.jsEnabled) {
   
 	/**
    * @name Drupal.PHTools.l
-   * Create a link, emulates drupal l() function
-   * var attributes = {}
-   * attributes.classes = 'my-class one my-class-two my-class-three';
-   * attributes.rel     =' my-rel-here';
-   * attributes.alt     = 'my-alt-tags-here';
-   * attributes.title   = 'My Title Here'
-   * Drupal.PHTools.l('My Link', '/mylink/url', attr, Drupal.settings.drupal_get_destination, 'my-link');
+   * Create a link, emulates drupal l() function.
+   * @param string title = The title of the link, uses drupals t() function to make it safe.
+   * @param string ref = the href you arelinking to. This is required and you must point it to an internal or external path, as this does not emulate Drupal's path look-up.
+   * @param object attributes = The attributes you wish to add to this link.
+   *  var attributes = {}
+   *  attributes.classes = 'my-class one my-class-two my-class-three';
+   *  attributes.rel     =' my-rel-here';
+   *  attributes.alt     = 'my-alt-tags-here';
+   *  attributes.title   = 'My Title Here';
+   *  attributes.id      = 'my-id-here'; The id is also the name
+   * @param array query     = an array of queries to add to the end of the href path
+   *  var str = Drupal.settings.drupal_get_destination
+   *  str = str.replace('destination=','');
+   *  var query = {
+   *  destination : str
+   *  }
+   * @param string fragment = the 'my-fragment' you wish to add. You do not need to use #
+   * 
+   * Example:
+   * Drupal.PHTools.l('My Link', '/mylink/url', attributes, query, fragment);
+   *
+   * @return null
    */
-  Drupal.PHTools.l = function (title, ref, attributes, destination, id)  {
-    return output = '<a id="'+id+'" title="'+Drupal.t(attributes.title)+'" alt"'+Drupal.t(attributes.alt)+'" rel="'+attributes.rel+'" name="'+id+'" class="'+attrributes.classes+'" href="'+ref+'?'+Drupal.PHTools.urlDecode(destination)+'">'+Drupal.t(title)+'</a>';
+  Drupal.PHTools.l = function (title, ref, attributes, query, fragment)  {
+    //If we have a blank ref kill off the link.
+    if (ref == null || ref == undefined) { return false; }
+    //If we have a blank title, leave it blank.
+    if (title == null || title == undefined) { title = ''; }
+    //Make sure all attributes are blank, if there are null or undefined values
+    if (attributes.classes == null || attributes.classes == undefined) { attributes.classes = ''; }
+    if (attributes.rel == null || attributes.rel == undefined) { attributes.rel = ''; }
+    if (attributes.alt == null || attributes.alt == undefined) { attributes.alt = ''; }
+    if (attributes.title == null || attributes.title == undefined) { attributes.title = ''; }
+    if (attributes.id == null || attributes.id == undefined) { attributes.id = ''; }
+    if (attributes.name == null || attributes.name == undefined) { attributes.name = ''; }
+    //If we have a query, render that into the href path.
+    if (query != null || query != undefined) {
+      var i = 0;
+      for (key in query) {
+        if (i == 0) {
+          ref += '?' +key +'=' +query[key];
+        } else {
+          ref += '&' +key +'=' +query[key];
+        }
+        i++;
+      }
+    }
+    //If we have a framgent, then add that fragment.
+    if (fragment == null || fragment == undefined) { fragment = ''; }
+    if (fragment.length > 0) {
+      ref = ref + '#' + fragment;
+    }
+    return output = '<a id="'+attributes.id+'" title="'+Drupal.t(attributes.title)+'" alt"'+Drupal.t(attributes.alt)+'" rel="'+attributes.rel+'" name="'+attributes.id+'" class="'+attributes.classes+'" href="'+ref+'">'+Drupal.t(title)+'</a>';
 	}
 	
 	/**
