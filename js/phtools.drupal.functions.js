@@ -74,7 +74,7 @@ if (Drupal.jsEnabled) {
     if (fragment.length > 0) {
       ref = ref + '#' + fragment;
     }
-    return output = '<a id="'+attributes.id+'" title="'+Drupal.t(attributes.title)+'" alt"'+Drupal.t(attributes.alt)+'" rel="'+attributes.rel+'" name="'+attributes.id+'" class="'+attributes.classes+'" href="'+ref+'">'+Drupal.t(title)+'</a>';
+    return '<a id="'+attributes.id+'" title="'+Drupal.t(attributes.title)+'" alt="'+Drupal.t(attributes.alt)+'" rel="'+attributes.rel+'" name="'+attributes.id+'" class="'+attributes.classes+'" href="'+ref+'">'+Drupal.t(title)+'</a>';
 	}
 	
 	/**
