@@ -1,5 +1,5 @@
 name        = PHBalanced Tools
 description = A set of PHP and jquery functions and UI features that allows you to easliy extend your Drupal site's capabilities.
 package     = PHBalanced Tools
-version     = 6.2.1-beta1
+version     = 6.2.1-beta2
 core        = 6.x

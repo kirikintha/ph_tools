@@ -1,9 +1,9 @@
 <?php
 /**
-* @name Custom Enhancements Module
+* @name PHTools Module
 * Provides a set of re-useable functions, helpers, re-useable arrays, javascript to Drupal 6's feature set
-* @author Paul T. Huntsberger courtesy of our friends at Blue Tent Marketing
-* @version 1.0
+* @author Paul T. Huntsberger courtesy of PHBalanced Web Development
+* @version 6.2.1-beta2
 */
 //Define Constants
 define("PH_TOOLS_MODULE_PATH", drupal_get_path('module', 'ph_tools'));
