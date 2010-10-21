@@ -150,61 +150,63 @@ if (Drupal.jsEnabled) {
   /**
    * @name Drupal.PHTools.validateForm
    * Validate a form with javascript, if you want form validation that does not involve submitting the page.
-   * This allows you target a div that has a form in it, and it will recursively scan the form for generic entry errors.
+   * This allows you target a div that has form items in it, and it will recursively scan the form for generic entry errors.
    * This looks for valid emails and null values.
-   * @param string formTarget  = #your-div-id
-   * @param string pagetTarget = #your-div-id
-   * @param string showSubmit  = #your-submit-button
+   * On it's own, this will not stop the form from submitting, it will only validate, so you have to set your own success or fail depending on your form requirements.
+   * Example Usage:
+   *  $('#edit-submit, #edit-preview, li.vertical-tab-button a').bind('click',function() {
+        var formTarget = {};
+        formTarget.target       = 'fieldset.vertical-tabs-menu';
+        formTarget.vertical_tab = 'a.vertical-tabs-list-menu';
+        return Drupal.PHTools.validateForm(formTarget);
+      });
+   * @param object formTarget = the object you are sending to the validation routine
+   * Example formTarget:
+   *  formTarget.target = '.my-class-name' or '#my-id-name' or 'fieldset.vertical-tabs-name'
+   *  formTarget.verticalTab = 'a.vertical-tabs-list-menu'; This is the anchor tag so it points to the li parent, which is where the error class needs to be set.
+   * @return boolean success = value true or false if succesful or not
    */
-  var formTarget, pageTarget, showSubmit;
-  formTarget = pageTarget = showSubmit = false;
-	Drupal.PHTools.validateForm = function (formTarget, pageTarget, showSubmit) {
+	Drupal.PHTools.validateForm = function (formTarget) {
     var success = true;
-    var fields  = {};
-    var result	= {};
-    $("#drupal-elements").remove();
-    //Set a container for our form messages.
-    $(formTarget).prepend('<div id="drupal-elements"></div>');
+    //Remove our vaidation message if we have one when we tart the validation sequence
+    if ($("#validate-form-message").length > 0) {
+      $("#validate-form-message").remove();
+    }
+    if ($(formTarget.verticalTab).parent('li').length > 0) {
+      $(formTarget.verticalTab).parent('li').removeClass('error');
+    }
     //If we have a valid target, run the validation
-    if (formTarget) {
-      $("input, select, textarea").each(function() {
+    if ($(formTarget.target).length > 0) {
+      //Find each input select or text area and validate that item if it is required 
+      $(formTarget.target).find('input, select, textarea').each(function() {
+        //Remove the form error when we run the validation routine.
         $(this).removeClass('error');
-        //Validate null values.
-        if (!$(this).val() && $(this).hasClass('required') && $(this).parents().is(formTarget) || !$(this).val() && !$("input[@id="+$(this).attr('id')+"]:checked").val() && $(this).hasClass('required') && $(this).parents().is(formTarget) || !$(this).val() && !$("input[@id="+$(this).attr('id')+"]:checked").val('NULL') && $(this).hasClass('required') && $(this).parents().is(formTarget)) {
+        //Validate null values for textfields, textareas, select lists and checkboxes.
+        if ($(this).attr('type') != 'checkbox' && $(this).hasClass('required') && !$(this).val() || $(this).attr('type') == 'checkbox' && $(this).hasClass('required') && !$(this).is(':checked')) {
           //If the form item value is empty, and required flag it with the error class, and turn success to false. This is a long set of logic.
           success = false;
           $(this).addClass('error');
-        } else if ($(this).val() && $(this).parents().is(formTarget) || $("input[@id="+$(this).attr('id')+"]:checked").val() && $(this).parents().is(formTarget)) {
-          var fieldVal = '';
-          //If the field set is true, return that fields value.
-          if ($(this).attr('type') == 'checkbox' || $(this).attr('type') == 'radio') {
-            fieldVal = $("input[@id="+$(this).attr('id')+"]:checked").val() ? $("input[@id="+$(this).attr('id')+"]:checked").val() : null;
-          } else {
-            fieldVal = $("input[@id="+$(this).attr('id')+"]:checked").val() ? $("input[@id="+$(this).attr('id')+"]:checked").val() : $(this).val();
+          //Support For Vertical Tabs errors, if we assign a vertical tab identifier
+          if ($(formTarget.verticalTab).parent('li').length > 0) {
+            $(formTarget.verticalTab).parent('li').addClass('error');
           }
-          fields[$(this).attr('id')] = fieldVal;
         }
-        //Validate email
-        if ($(this).attr("type") == 'text' && $(this).attr("id").match(/email/) && $(this).parents().is(formTarget) && $(this).val()) {
+        //Validate email if we have a field name *email*.
+        if ($(this).attr('type') == 'text' && $(this).attr("id").match(/email/i) && $(this).val() && $(this).hasClass('required')) {
           var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
           success = pattern.test($(this).val());
-          (success == false) ? $(this).addClass('error') : '';
-        } 
+          if (success == false) { $(this).addClass('error') };
+        }
       });
       if (success == false) {
-        //Set the error message to the drupal-elements we made.
-        $("#drupal-elements").prepend('<div class="error">Sorry, but you must fill out all the required form items, please try again.</div>');
-      }
-      if (showSubmit) {
-        //In case the submit hide module is used, show the submit button again.
-        $(showSubmit).show();
-        $(".hide_submit").remove();
+        //Set a container for our form messages.
+        $(formTarget.target).prepend('<div id="validate-form-message"></div>');
+        //Set the error message to the validate-form-message we made.
+        $("#validate-form-message").prepend('<div class="error"><p>Sorry, but you must fill out all the required form items, please try again. Each required field has an asterix (*) next to it.</p></div>');
       }
     }
     //Return true/false and the fields that have been processed.
-    result.success = success;
-    result.fields = fields;
-    return result;
+    return success;
 	}
   
   /**
