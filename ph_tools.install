@@ -4,6 +4,7 @@
  */
 
 define("INSTALL_MODULE_NAME", "PHBalanced Tools");
+define("PH_TOOLS_MODULE_GLOBAL_PATHS", "admin*\nnode/*/edit\nnode/*/add\nnode/*/delete\nbatch*\ncart*\nstore*\n*reserve*\n*map*");
 
 function ph_tools_install() {
   //Set variables.
