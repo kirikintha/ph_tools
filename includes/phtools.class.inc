@@ -620,11 +620,11 @@ class phToolsAdmin {
          $file->filename => 'ENABLE',
        );
         $form['ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name)] = array(
-          '#title' 				 => t('Enable or Disable @name', array('@name' => $file->name)),
-          '#description' 	 => t('This file is located at: @dir', array('@dir' => $file->filename)),
-          '#type' 				 => 'radios', 
+          '#title' 		   => t('Enable or Disable @name', array('@name' => $file->name)),
+          '#description'   => t('This file is located at: @dir', array('@dir' => $file->filename)),
+          '#type' 		   => 'radios',
           '#default_value' => variable_get('ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name), 0),
-          '#options' 			 => $options,
+          '#options' 	   => $options,
           '#weight'        => 0,
           '#group'         => 'jquery_plugins',
           '#prefix'        => '<hr />',
@@ -644,7 +644,7 @@ class phToolsAdmin {
           '#title' 				 => t('Paths to exclude this script from.'),
           '#description' 	 => t('Set the pages in which you do not wish to have this script run.'),
           '#type' 				 => 'textarea', 
-          '#default_value' => variable_get('ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name) .'_paths', variable_get('ph_tools_global_paths', "admin*\n")),
+          '#default_value' => variable_get('ph_tools_enable_' .str_replace(array('.','-'),array('_','_'),$file->name) .'_paths', variable_get('ph_tools_global_paths', PH_TOOLS_MODULE_GLOBAL_PATHS)),
           '#weight'        => 10,
           '#group'         => 'jquery_plugins',
        );
@@ -677,7 +677,7 @@ class phToolsAdmin {
    */
   public static function _ph_tools_load_js() {
     //Global settings, this is for the main settings of the module.
-    if (self::_check_path(variable_get('ph_tools_global_paths',''))) {
+    if (self::_check_path(variable_get('ph_tools_global_paths',PH_TOOLS_MODULE_GLOBAL_PATHS))) {
       //Add Destination Setting, so you can have the drupal_get_destination() as a js available Drupal.settings.
       drupal_add_js(array('drupal_get_destination' => drupal_get_destination()), 'setting');
       //Add Path To Theme setting, so you can get the path to theme.
