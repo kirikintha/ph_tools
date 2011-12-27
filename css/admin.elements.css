@@ -1,0 +1,85 @@
+/* Mobile Theme Tools Admin Elements
+    @file admin.elements.css
+-------------------------------------------------------------- */
+ul.ui-sortable .fieldset-title a {
+  display:block;
+  background: url(../images/draggable.png) 99% 8px no-repeat;
+}
+
+ul.ui-sortable li.ui-state-highlight {
+  min-height: 30px;
+  line-height: 34px;
+  background:#C7C7C7;
+  border: 1px solid B8B8B8;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+
+button {
+  float:right;
+  display:block;
+  width:16px;
+  height:25px;
+  text-indent:-9999px;
+  border:none;
+  cursor:pointer;
+}
+
+button.delete-me {
+  background: url(../images/list-remove.png) center center no-repeat !important;
+}
+
+div.btn-add-me {
+  clear: both;
+  display: block;
+  line-height: 25px;
+  text-align: left;
+  width: 99%;
+  margin-bottom:10px;
+}
+
+button.add-me {
+  float:left;
+  background: url(../images/list-add.png) center center no-repeat !important;
+  margin-right:10px;
+}
+
+input.add-me {
+  border: 0px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  background: url(../images/list-add.png) 5px center no-repeat !important;
+  padding-left:20px !important;
+  margin-right:10px;
+}
+
+input.add-me:hover {
+  color:#CCC !important;
+}
+
+/* Meta/Link Tags
+-------------------------------------------------------------- */
+div.dynamic-element-wrapper {
+  clear:both;
+  display: block;
+  overflow:hidden;
+}
+
+div.container-inline.theme-settings-meta-tags {
+  height:25px;
+}
+
+div.container-inline.theme-settings-meta-tags input {
+  font-size: 0.94em;
+}
+
+div.container-inline.mobile-link-tags input.link-rel,
+div.container-inline.theme-settings-meta-tags input.meta-name {
+  max-width:135px;
+}
+
+div.container-inline.mobile-link-tags input.link-href,
+div.container-inline.theme-settings-meta-tags input.meta-content {
+  max-width:400px;
+}

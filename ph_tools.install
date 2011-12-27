@@ -14,6 +14,8 @@ function ph_tools_install() {
   variable_set('ph_tools_classes_to_fade', "status\nwarning" );
   //Check out the lirbraries directory. This is where we want our stuff to go.
   file_check_directory(variable_get('ph_tools_library_directory', 'sites/all/libraries'), FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS );
+  //Make sure this module's weight is high in the list.
+  db_query("UPDATE {system} SET weight = %d WHERE name = '%s'", 90, 'ph_tools');
 }
 
 /**

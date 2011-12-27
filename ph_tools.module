@@ -14,9 +14,9 @@ define("PH_TOOLS_MODULE_WHITELIST", 'orbitaltooltip.js|jquery.jcarousel.min.js|j
 define("PH_TOOLS_MODULE_GLOBAL_PATHS", "admin*\nnode/*/edit\nnode/*/add\nnode/*/delete\nbatch*\ncart*\nstore*\n*reserve*\n*map*");
 
 //Include Module Files
-include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.class.inc');
-include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.functions.inc');
-include_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.admin.inc');
+require_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.class.inc');
+require_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.functions.inc');
+require_once(PH_TOOLS_MODULE_PATH. '/includes/phtools.admin.inc');
 
 /**
  * Implementation of hook_init().
@@ -31,6 +31,7 @@ function ph_tools_init() {
  */
 function ph_tools_menu() {
 	$items = array();
+  //phTools module paths.
 	$items['admin/settings/ph_tools'] = array(
 		'title'            => t('@name', array('@name' => PH_TOOLS_MODULE_NAME)),
 		'page callback'    => 'drupal_get_form',
@@ -52,7 +53,37 @@ function ph_tools_menu() {
 		'type'				     => MENU_LOCAL_TASK,
 		'access arguments' => array('administer site configuration'),
 	);
+	$items['admin/settings/ph_tools/location'] = array(
+		'title' 			     => t('Geocoding and Locations'),
+		'page callback' 	 => 'drupal_get_form',
+		'page arguments' 	 => array('_ph_tools_location'),
+		'type'				     => MENU_LOCAL_TASK,
+		'access arguments' => array('administer site configuration'),
+	);
+  //AHAH Callback url.
+  $items['admin/settings/ph_tools/ahah/%'] = array(
+    'page callback'    => '_phtools_ahah',
+    'page arguments'   => array(4),
+    'type'             => MENU_CALLBACK,
+		'access arguments' => array('administer site configuration'),
+	);
 	return $items;
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function ph_tools_cron() {
+  //Set internal search indexing for autocomplete functionality.
+  phToolsAdmin::_setSearchIndex();
+  //Check to see if we query yahoo or google for location operations. If google reaches about 7500 requests in an hour, then we need to make sure that
+  //we query google instead.
+  $googleDisableTimestamp = variable_get('phtools_disable_google_geocoding', null);
+  $elapsedTime            = time() - $googleDisableTimestamp;
+  if ($googleDisableTimestamp && $elapsedTime >= 21600) {
+    //Everytime cron runs, we check to see if on the next run we can use google geocode, if it has been 24 hours (86400 seconds) since the last 620 error. NOT that I hav a preference at this point
+    variable_del('phtools_disable_google_geocoding');
+  }
 }
 
 /**
@@ -64,7 +95,10 @@ function ph_tools_theme() {
       'path'      => PH_TOOLS_MODULE_PATH,
       'template'  => 'theme/weather_widget',
 			'arguments' => array('widget' => NULL),
-		)
+		),
+   'theme_settings_form_meta_tags' => array(
+      'arguments' => array('element' => NULL),
+    ),
 	);
 }
 
@@ -73,8 +107,7 @@ function ph_tools_theme() {
  */
 function ph_tools_user($op, &$edit, &$account, $category = NULL) {
 	switch ($op) {
-		case 'load':
-		case 'update':
+		case 'after_update':
 			//If image cache user module exists, reacache the user image when the user loads their profile
 			if (function_exists('imagecache_image_flush')) {
 				imagecache_image_flush($account->picture);
@@ -93,7 +126,6 @@ function ph_tools_preprocess_page(&$vars) {
 			$vars['tabs'] = preg_replace('/<li.*File browser<\/a><\/li>/', '', $vars['tabs']);
 		}
 	}
-  $vars['body_classes'] = phTools::_get_body_classes($vars);
 }
 
 /**
@@ -106,4 +138,260 @@ function ph_tools_wysiwyg_editor_settings_alter(&$settings, &$context) {
     $settings['force_br_newlines'] = 'true';
     $settings['force_p_newlines']  = 'false';
   }
+}
+
+function ph_tools_form_alter(&$form, &$form_state, $form_id) {
+  //kpr($form['#id']);
+  //kpr($form_id);
+  //Switch between form #id - this is for more global operations to forms.
+  switch($form['#id']) {
+    //If we are in the node form and need to make adjustments, do so here.
+    case 'node-form':
+      //Get rid of the ridiculous "Show summary in full view" checkbox, it makes no sense to default to.
+      if(isset($form['body_field']['teaser_include'])) {
+        //Set default to unchecked.
+        $form['body_field']['teaser_include']['#default_value'] = 0;
+      }
+      break;
+    //Content type Form.
+    case 'node-type-form':
+      //Reverse type and name, so that the machine name comes before the contnet type name, to make it work like everything else.
+      $form['identity']['type']['#weight'] = -100;
+      $form['identity']['name']['#weight'] = 0;
+      $form['identity']['description']['#weight'] = 100;
+      //Set workflow defaults so that the body label is hidden by default since I rarely use it.
+						//Update: *If we are on admin/content/types/add
+						$path = drupal_get_path_alias($_GET['q']);
+						if (drupal_match_path($path, "admin/content/types/add\n")) {
+								$form['submission']['body_label']['#default_value'] = ($form['submission']['body_label']['#default_value'] == 'Body') ? '' : $form['submission']['body_label']['#default_value'];
+								//Set workflow defaults to Create Revision and Published.
+								$form['workflow']['node_options']['#default_value'] = array('status');
+						}
+      break;
+    //CCK field overview form. Changes weights so they are in a more logical order at default.
+    case 'content-field-overview-form';
+      //kpr($form);
+      $form['path']['weight']['#default_value'] = 26;
+      $form['menu']['weight']['#default_value'] = 25;
+      $form['revision_information']['weight']['#default_value'] = 33;
+      $form['author']['weight']['#default_value'] = 32;
+      $form['options']['weight']['#default_value'] = 34;
+      $form['path_redirect']['weight']['#default_value'] = 29;
+      $form['nodewords']['weight']['#default_value'] = 30;
+      $form['xmlsitemap']['weight']['#default_value'] = 31;
+      $form['_add_new_field']['weight']['#default_value'] = 98;
+      $form['_add_existing_field']['weight']['#default_value'] = 99;
+      $form['_add_new_group']['weight']['#default_value'] = 100;
+      break;
+    //Devel Generate, change the defaults to be less agressive.
+    case 'devel-generate-content-form':
+      $form['node_types']['#default_value'] = array();
+      $form['num_nodes']['#default_value'] = 10;
+      $form['add_alias']['#default_value'] = TRUE;
+      $form['title_length']['#default_value'] = 4;
+      break;
+  }
+  //Switch between form ID's, for globa/local operations in forms.
+  switch ($form_id) {
+    case 'comment_form':
+      //Load the global user, so we can have that on hand for permission checks.
+      global $user;
+      //If we are an Anonymous user or do not have perms to post without approval, then we make some alterations to the form so no matter what the default input settings are we give back the for we want.
+      if (user_access('post comments without approval')) {
+        //Add a class to the comment input filter, so we can target it with CSS.
+        $form['comment_filter']['format']['#attributes']['class'] = 'comment-input-filter';
+        //Unset the input filters ad infinitum to only have the filtered HTML if we are an Anonymous user. This presumes you don't ever mess with the input filters.
+        $form['comment_filter']['format'][1]['#default_value'] = 1;
+        $form['comment_filter']['format'][2]['#default_value'] = 1;
+        $form['comment_filter']['format'][3]['#default_value'] = 1;
+        $form['comment_filter']['format'][4]['#default_value'] = 1;
+        unset($form['comment_filter']['format'][2]);
+        unset($form['comment_filter']['format'][3]);
+        unset($form['comment_filter']['format'][4]);
+        //Unset Format guidilines
+        unset($form['comment_filter']['format']['format']['guidelines']);
+        if ($user->uid == 0) {
+          //Remove any Anonymous names from the "Your Name" field.
+          $form['name']['#default_value'] = t('');
+        }
+      }
+      //Changes the submit to say "Save"
+      $form['submit']['#value'] = t('Submit');
+      //Remove all the Labels for the comment for, because these need to be suffixes.
+      unset($form['comment_filter']['comment']['#title']);
+      unset($form['name']['#title']);
+      $form['name']['#suffix'] = t('!MSG', array('!MSG' => '<div class="comment-form-label">Name (Required)</div>'));
+      unset($form['mail']['#title']);
+      $form['mail']['#suffix'] = t('!MSG', array('!MSG' => '<div class="comment-form-label">Email (Required)</div>'));
+    break;
+   //Views exposed filters.
+   case 'views_exposed_form':
+     //Add datepicker ui.
+     jquery_ui_add('ui.datepicker');
+     break;
+   //User registration alterations, turn off autocomplete for registration form.
+   case 'user_register':
+     if (isset($form['account'])) {
+       $form['account']['name']['#attributes']['autocomplete'] =
+       $form['account']['mail']['#attributes']['autocomplete'] =
+       $form['account']['pass']['#attributes']['autocomplete'] = 'off';
+     }
+     break;
+  }
+  //If we have the location form, then we add it to vertical tabs.
+  if ($form['#id'] == 'node-form' && !empty($form['locations'])) {
+    //Vertical tabs for location.
+    $form['location'] = array(
+      '#type'         => 'fieldset',
+      '#collapsible'  => TRUE,
+      '#title'        => t('Location'),
+      '#collapsed'    => FALSE,
+      '#weight'       => -10,
+      '#group'        => 'location',
+    );
+    $form['location']['locations'] = $form['locations'];
+    unset($form['locations']);
+  }
+  //Make sure the weights for Submit buttons, like save preview or delete are weighted properly in panes.
+  if (isset($form['buttons'])) {
+    $form['buttons']['#weight'] = 100;
+  }
+  //Add phtools validate class to all forms so that we can have an easy way to assign the .validate() routine if needed.
+  if (isset($form['#attributes']['class']) && !strstr($form['#attributes']['class'], 'phtools-validate')) {
+    $form['#attributes']['class'] = $form['#attributes']['class']. ' phtools-validate';
+				$form['#attributes']['class'] = trim($form['#attributes']['class'] );
+  }
+}
+
+/**
+ * Hook Views Pre View
+ */
+function ph_tools_views_pre_view(&$view, &$display_id, $args) {
+  //If we are using a page display, and we are also in a panel, then assign the mini identifier.
+  if ($view->display_handler->definition['handler'] == 'calendar_plugin_display_page' && panels_get_current_page_display()) {
+    //We are simultating a block view for this calendar, if it is in a panel, so that the date browsing works correctly.
+    $view->date_info->block_identifier = 'mini';
+  }
+}
+
+
+function ph_tools_elements() {
+  $elements = array();
+  //Meta Tags Element.
+  $elements['theme_settings_form_meta_tags'] = array(
+    '#input'   => TRUE,
+    '#process' => array('ph_tools_process_meta_tags'),
+  );
+  return $elements;
+}
+
+/**
+ * @name ph_tools_process_meta_tags($element);
+ * Processes our Meta Tags element.
+ * @todo is there a way I can fold both these preprocessors together?
+ */
+function ph_tools_process_meta_tags($element) {
+  //Create Admin Buttons. @todo - make this part of the theme?
+  $buttons = array(
+    '!add_button'    => '<button type="button" class="add-me" title="Add" alt="Add another row.">Add</button>',
+    '!delete_button' => '<button type="button" class="delete-me" title="Delete" alt="Delete this row.">Delete</button>',
+  );
+  //Add admin.css
+  drupal_add_css(PH_TOOLS_MODULE_PATH .'/css/admin.elements.css');
+  //Add JS for this element.
+  drupal_add_js(PH_TOOLS_MODULE_PATH .'/js/behaviors.admin.elements.js');
+  //Process Element.
+  $element['#tree'] = TRUE;
+  $parents = $elements['#parents'];
+  //Meta Name.
+  $parents[] = 'meta_name';
+  $element['meta_name'] = array(
+    '#type'          => 'textfield',
+    '#default_value' => $element['#value']['meta_name'],
+    '#size'          => '20',
+    '#maxlength'     => '30',
+    '#attributes'    => array('class' => 'meta-name'),
+    '#prefix'        => check_plain('<meta name="'),
+    '#suffix'        => check_plain('"'),
+  );
+  //Meta Content.
+  $parents = $element['#parents'];
+  $parents[] = 'meta_content';
+  $element['meta_content'] = array(
+    '#type'          => 'textfield',
+    '#default_value' => $element['#value']['meta_content'],
+    '#size'          => '60',
+    '#maxlength'     => '300',
+    '#attributes'    => array('class' => 'meta-content'),
+    '#prefix'        => check_plain(' content="'),
+    '#suffix'        => check_plain('" />').t('!delete_button',$buttons),
+  );
+  //Return Element.
+  return $element;
+}
+
+/**
+ * Theme Meta Tags.
+ */
+function theme_theme_settings_form_meta_tags($element) {
+  return theme('form_element', $element, '<div class="container-inline theme-settings-meta-tags">' . $element['#children'] . '</div>');
+}
+
+function _phtools_ahah($callback) {
+  //Switch between callback arguments.
+  switch ($callback) {
+    case 'theme-settings':
+      //Include System Includes.
+      module_load_include('inc', 'system', 'system.admin');
+      //Get callback helper form.
+      $output = phToolsAdmin::_ahahCallbackHelper('theme-settings');
+      break;
+  }
+  //Json output.
+  print drupal_json(array('status' => TRUE, 'data' => $output));
+  exit();
+}
+
+/**
+ * @name _phtools_theme_settings_submit($form, &$form_state)
+ * Submit handler for phToolsAdmin::_getForm().
+ */
+function _phtools_theme_settings_validate($form, &$form_state) {
+  //Get the meta/link tags into a form that the FAPI can undestand.
+  $form_state['values']['intercept_meta_tags'] = (is_array($form_state['values']['intercept_meta_tags'])) ? $form_state['values']['intercept_meta_tags'] : array();
+  $form_state['values']['intercept_styles_excludes'] = array();
+  $form_state['values']['intercept_js_excludes'] = array();
+  //Loop through our form_state values and change any values.
+  foreach ($form_state['values'] as $key => $value) {
+    //If we have a content value, save.
+    //If we match a meta tag, then add it to the intercept array and unset the values, so the $theme_settings remain in tact.
+    if (strstr($key, 'element_meta_tags')) {
+      if (!empty($value['meta_name']) && !empty($value['meta_content'])) {
+        $form_state['values']['intercept_meta_tags'][] = $value;
+      }
+      unset($form_state['values'][$key]);
+    }
+    //If we match a stylesheet exclusion array, then add it to the intercept_styles_excludes array, so we can easily read that array in the interceptStyles method. Do not unset variables here.
+    if (strstr($key, 'element_styles_excludes')) {
+      //We have to go through each value and see if it has been disabled, if it has a 0 (FALSE) then we add it to the list.
+      foreach ($value as $item => $piece) {
+        //If we have an empty item, add it to our exclusion array.
+        if (empty($piece)) {
+          $form_state['values']['intercept_styles_excludes'][] = $item;
+        }
+      }
+    }
+    //If we match a js exclusion array, then add it to the intercept_js_excludes array, so we can easily read that array in the interceptJS method. Do not unset variables here.
+    if (strstr($key, 'element_js_excludes')) {
+      //We have to go through each value and see if it has been disabled, if it has a 0 (FALSE) then we add it to the list.
+      foreach ($value as $item => $piece) {
+        //If we have an empty item, add it to our exclusion array.
+        if (empty($piece)) {
+          $form_state['values']['intercept_js_excludes'][] = $item;
+        }
+      }
+    }
+  }
+  //Set a friendly message so we know that we have saved.
+  drupal_set_message(t('Custom Theme Settings Saved.'), 'status', FALSE);
 }
